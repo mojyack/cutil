@@ -129,7 +129,6 @@ class Process {
                         if(fd.fd == output_collector_event) {
                             return;
                         }
-                        const auto& dst = fd.fd == fileno(pipes[1]) ? outputs[0] : outputs[1];
                         auto        buf = std::array<char, 256>();
                         const auto  len = read(fd.fd, buf.data(), 256);
                         if(len == -1) {
