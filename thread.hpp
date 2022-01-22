@@ -30,7 +30,13 @@ struct Critical {
     auto operator->() -> T* {
         return &data;
     }
+    auto operator->() const -> const T* {
+        return &data;
+    }
     auto operator*() -> T& {
+        return data;
+    }
+    auto operator*() const -> const T& {
         return data;
     }
     Critical(T src) : data(src) {}
