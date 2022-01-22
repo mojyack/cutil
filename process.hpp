@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <cassert>
 #include <cstdio>
 #include <thread>
 
@@ -89,6 +90,12 @@ class Process {
     }
     // argv.back() and env.back() must be a nullptr
     Process(const std::vector<const char*>& argv, const std::vector<const char*>& env = {}, const char* const workdir = nullptr) {
+        assert(!argv.empty());
+        assert(argv.back() == NULL);
+        if(!env.empty()) {
+            assert(env.back() == NULL);
+        }
+
         for(auto i = 0; i < 3; i += 1) {
             auto fd = std::array<int, 2>();
             if(pipe(fd.data()) < 0) {
@@ -129,8 +136,8 @@ class Process {
                         if(fd.fd == output_collector_event) {
                             return;
                         }
-                        auto        buf = std::array<char, 256>();
-                        const auto  len = read(fd.fd, buf.data(), 256);
+                        auto       buf = std::array<char, 256>();
+                        const auto len = read(fd.fd, buf.data(), 256);
                         if(len == -1) {
                             if(errno == EAGAIN) {
                                 break;
@@ -157,7 +164,7 @@ class Process {
                     _exit(errno);
                 }
             }
-            execve(argv[0], const_cast<char* const*>(argv.data()), const_cast<char* const*>(env.data()));
+            execve(argv[0], const_cast<char* const*>(argv.data()), env.empty() ? environ : const_cast<char* const*>(env.data()));
             _exit(0);
         }
     }
