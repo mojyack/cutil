@@ -50,9 +50,7 @@ class Event {
   public:
     auto wait() -> void {
         flag.clear();
-        while(!flag.test()) {
-            flag.wait(false);
-        }
+        flag.wait(false);
     }
     auto wakeup() -> void {
         flag.test_and_set();
