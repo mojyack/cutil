@@ -34,6 +34,9 @@ class Variant {
     auto get() const -> const T& {
         return std::get<T>(data);
     }
+    auto get_current() {
+        return std::ref(std::get<index()>(data));
+    }
     template <class T, class... Args>
     auto emplace(Args&&... args) -> Variant<Ts...>& {
         data.template emplace<T>(std::forward<Args>(args)...);
