@@ -48,7 +48,7 @@ class Variant {
     template <class T, class... Args>
     Variant(std::in_place_type_t<T>, Args&&... args) : data(std::in_place_type<T>, std::forward<Args>(args)...) {}
     template <class... Args>
-    Variant(Args&&... args) : data(args...){};
+    Variant(Args&&... args) : data(args...){}
 };
 
 #ifdef CUTIL_NS
