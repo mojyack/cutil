@@ -24,6 +24,13 @@ auto print(Args... args) -> void {
     (std::cout << ... << args) << std::endl;
 }
 
+template <class... Args>
+auto dynamic_assert(const bool cond, Args... args) -> void {
+    if(!cond) {
+        panic(args...);
+    }
+}
+
 #ifdef CUTIL_NS
 }
 #endif
