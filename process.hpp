@@ -1,6 +1,5 @@
 #pragma once
 #include <array>
-#include <cassert>
 #include <cstdio>
 #include <thread>
 
@@ -90,11 +89,9 @@ class Process {
     }
     // argv.back() and env.back() must be a nullptr
     Process(const std::vector<const char*>& argv, const std::vector<const char*>& env = {}, const char* const workdir = nullptr) {
-        assert(!argv.empty());
-        assert(argv.back() == NULL);
-        if(!env.empty()) {
-            assert(env.back() == NULL);
-        }
+        dynamic_assert(!argv.empty());
+        dynamic_assert(argv.back() == NULL);
+        dynamic_assert(env.empty() || env.back() == NULL);
 
         for(auto i = 0; i < 3; i += 1) {
             auto fd = std::array<int, 2>();
