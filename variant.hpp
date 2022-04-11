@@ -46,6 +46,9 @@ class Variant {
             }
             return visit<index + 1>(visitor);
         }
+
+        // unreachable
+        return decltype(visitor(get<0>()))();
     }
     template <class T, class... Args>
     auto emplace(Args&&... args) -> Variant<Ts...>& {
