@@ -34,6 +34,19 @@ class Variant {
     auto get() const -> const T& {
         return std::get<T>(data);
     }
+    template <size_t T>
+    auto get() -> auto& {
+        return std::get<T>(data);
+    }
+    template <size_t index = 0>
+    auto visit(auto visitor) -> auto {
+        if constexpr(index < sizeof...(Ts)) {
+            if(index == data.index()) {
+                return visitor(get<index>());
+            }
+            return visit<index + 1>(visitor);
+        }
+    }
     template <class T, class... Args>
     auto emplace(Args&&... args) -> Variant<Ts...>& {
         data.template emplace<T>(std::forward<Args>(args)...);
@@ -43,12 +56,13 @@ class Variant {
         data = std::move(o);
         return *this;
     }
+
     Variant() {}
     Variant(auto&& o) : data(std::move(o)) {}
     template <class T, class... Args>
     Variant(std::in_place_type_t<T>, Args&&... args) : data(std::in_place_type<T>, std::forward<Args>(args)...) {}
     template <class... Args>
-    Variant(Args&&... args) : data(args...){}
+    Variant(Args&&... args) : data(args...) {}
 };
 
 #ifdef CUTIL_NS
