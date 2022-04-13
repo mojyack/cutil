@@ -51,19 +51,12 @@ class Process {
     };
 
     auto join(const bool force = false) -> Result {
-        if(pid == 0) {
-            panic("process not forked");
-        }
-        if(joined) {
-            panic("already joined");
-        }
+        dynamic_assert(!joined, "already joined");
 
         joined = true;
 
         if(force) {
-            if(kill(pid, SIGKILL) == -1) {
-                panic("failed to kill process");
-            }
+            dynamic_assert(kill(pid, SIGKILL) != -1, "failed to kill process");
         }
 
         auto status = int();
@@ -75,7 +68,7 @@ class Process {
         for(auto i = 0; i < 3; i += 1) {
             fclose(pipes[i]);
         }
-        const bool exitted = WIFEXITED(status);
+        const auto exitted = static_cast<bool>(WIFEXITED(status));
         return {{exitted ? Result::Exit : Result::Signal, exitted ? WEXITSTATUS(status) : WTERMSIG(status)}, std::move(outputs[0]), std::move(outputs[1])};
     }
     auto get_pid() const -> pid_t {
@@ -85,8 +78,9 @@ class Process {
         return fds[0][1];
     }
     auto is_joinable() const -> bool {
-        return pid != 0 && !joined;
+        return !joined;
     }
+
     // argv.back() and env.back() must be a nullptr
     Process(const std::vector<const char*>& argv, const std::vector<const char*>& env = {}, const char* const workdir = nullptr) {
         dynamic_assert(!argv.empty());
@@ -104,8 +98,7 @@ class Process {
 
         pid = vfork();
         if(pid < 0) {
-            pid = 0;
-            return;
+            panic("vfork() failed");
         } else if(pid != 0) {
             for(auto i = 0; i < 3; i += 1) {
                 const auto fd = fds[i][i == 0 ? 1 : 0].as_handle();
