@@ -50,6 +50,18 @@ class Variant {
         // unreachable
         return decltype(visitor(get<0>()))();
     }
+    template <size_t index = 0>
+    auto visit(auto visitor) const -> auto {
+        if constexpr(index < sizeof...(Ts)) {
+            if(index == data.index()) {
+                return visitor(get<index>());
+            }
+            return visit<index + 1>(visitor);
+        }
+
+        // unreachable
+        return decltype(visitor(get<0>()))();
+    }
     template <class T, class... Args>
     auto emplace(Args&&... args) -> Variant<Ts...>& {
         data.template emplace<T>(std::forward<Args>(args)...);
