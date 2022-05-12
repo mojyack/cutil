@@ -71,7 +71,7 @@ class Variant {
         }
 
         // unreachable
-        return decltype(visitor(get<0>()))();
+        return visitor(get<0>());
     }
 
     template <class T, class... Args>
