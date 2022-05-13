@@ -25,6 +25,13 @@ auto print(Args... args) -> void {
 }
 
 template <class... Args>
+auto build_string(Args... args) -> std::string {
+    auto ss = std::stringstream();
+    (ss << ... << args);
+    return ss.str();
+}
+
+template <class... Args>
 auto dynamic_assert(const bool cond, Args... args) -> void {
     if(!cond) {
         panic(args...);
