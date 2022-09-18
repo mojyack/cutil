@@ -15,13 +15,13 @@ class Critical {
     T                  data;
 
   public:
-    auto access() -> std::pair<std::lock_guard<std::mutex>, T&> {
-        return std::pair<std::lock_guard<std::mutex>, T&>{mutex, data};
+    auto access() -> std::pair<const std::lock_guard<std::mutex>, T&> {
+        return std::pair<const std::lock_guard<std::mutex>, T&>{mutex, data};
     }
 
-    auto try_access() -> std::optional<std::pair<std::lock_guard<std::mutex>, T&>> {
+    auto try_access() -> std::optional<std::pair<const std::lock_guard<std::mutex>, T&>> {
         if(mutex.try_lock()) {
-            return std::optional<std::pair<std::lock_guard<std::mutex>, T&>>{{mutex, std::adopt_lock}, data};
+            return std::optional<std::pair<const std::lock_guard<std::mutex>, T&>>{{mutex, std::adopt_lock}, data};
         }
         return std::nullopt;
     }
@@ -34,13 +34,13 @@ class Critical {
         return data;
     }
 
-    auto access() const -> std::pair<std::lock_guard<std::mutex>, const T&> {
-        return std::pair<std::lock_guard<std::mutex>, T&>{mutex, data};
+    auto access() const -> std::pair<const std::lock_guard<std::mutex>, const T&> {
+        return std::pair<const std::lock_guard<std::mutex>, const T&>{mutex, data};
     }
 
-    auto try_access() const -> std::optional<std::pair<std::lock_guard<std::mutex>, const T&>> {
+    auto try_access() const -> std::optional<std::pair<const std::lock_guard<std::mutex>, const T&>> {
         if(mutex.try_lock()) {
-            return std::optional<std::pair<std::lock_guard<std::mutex>, T&>>{{mutex, std::adopt_lock}, data};
+            return std::optional<const std::pair<std::lock_guard<std::mutex>, const T&>>{{mutex, std::adopt_lock}, data};
         }
         return std::nullopt;
     }
