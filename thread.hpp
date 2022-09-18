@@ -2,45 +2,44 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <optional>
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
 #endif
 
 template <class T>
-struct Critical {
-    mutable std::mutex mutex;
-    T                  data;
+class Critical {
+  private:
+    std::mutex mutex;
+    T          data;
 
-    auto get_lock() const -> std::lock_guard<std::mutex> {
-        return std::lock_guard<std::mutex>(mutex);
+  public:
+    auto access() -> std::pair<std::lock_guard<std::mutex>, T&> {
+        return std::pair<std::lock_guard<std::mutex>, T&>{mutex, data};
     }
-    auto store(T src) -> void {
-        const auto lock = get_lock();
-        data            = src;
+
+    auto try_access() -> std::optional<std::pair<std::lock_guard<std::mutex>, T&>> {
+        if(mutex.try_lock()) {
+            return std::optional<std::pair<std::lock_guard<std::mutex>, T&>>{{mutex, std::adopt_lock}, data};
+        }
+        return std::nullopt;
     }
-    auto load() const -> T {
-        const auto lock = get_lock();
+
+    auto assume_locked() -> T& {
         return data;
     }
-    auto replace(T src = T()) -> T {
-        const auto lock = get_lock();
-        std::swap(data, src);
-        return src;
-    }
-    auto operator->() -> T* {
-        return &data;
-    }
-    auto operator->() const -> const T* {
-        return &data;
-    }
-    auto operator*() -> T& {
+
+    auto unsafe_access() -> T& {
         return data;
     }
-    auto operator*() const -> const T& {
-        return data;
+
+    auto get_raw_mutex() -> std::mutex& {
+        return mutex;
     }
-    Critical(T src) : data(src) {}
+
+    template <class... Args>
+    Critical(Args&&... args) : data(std::move(args)...) {}
     Critical() {}
 };
 
@@ -68,17 +67,17 @@ class TimerEvent {
 
   public:
     auto wait() -> void {
-        waked.store(false);
-        auto lock = std::unique_lock<std::mutex>(waked.mutex);
-        condv.wait(lock, [this]() { return waked.data; });
+        waked.access().second = false;
+        auto lock = std::unique_lock<std::mutex>(waked.get_raw_mutex());
+        condv.wait(lock, [this]() { return waked.assume_locked(); });
     }
     auto wait_for(auto duration) -> bool {
-        waked.store(false);
-        auto lock = std::unique_lock<std::mutex>(waked.mutex);
-        return condv.wait_for(lock, duration, [this]() { return waked.data; });
+        waked.access().second = false;
+        auto lock = std::unique_lock<std::mutex>(waked.get_raw_mutex());
+        return condv.wait_for(lock, duration, [this]() { return waked.assume_locked(); });
     }
     auto wakeup() -> void {
-        waked.store(true);
+        waked.access().second = true;
         condv.notify_all();
     }
 };
