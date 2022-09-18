@@ -11,8 +11,8 @@ namespace CUTIL_NS {
 template <class T>
 class Critical {
   private:
-    std::mutex mutex;
-    T          data;
+    mutable std::mutex mutex;
+    T                  data;
 
   public:
     auto access() -> std::pair<std::lock_guard<std::mutex>, T&> {
@@ -31,6 +31,25 @@ class Critical {
     }
 
     auto unsafe_access() -> T& {
+        return data;
+    }
+
+    auto access() const -> std::pair<std::lock_guard<std::mutex>, const T&> {
+        return std::pair<std::lock_guard<std::mutex>, T&>{mutex, data};
+    }
+
+    auto try_access() const -> std::optional<std::pair<std::lock_guard<std::mutex>, const T&>> {
+        if(mutex.try_lock()) {
+            return std::optional<std::pair<std::lock_guard<std::mutex>, T&>>{{mutex, std::adopt_lock}, data};
+        }
+        return std::nullopt;
+    }
+
+    auto assume_locked() const -> const T& {
+        return data;
+    }
+
+    auto unsafe_access() const -> const T& {
         return data;
     }
 
@@ -68,12 +87,12 @@ class TimerEvent {
   public:
     auto wait() -> void {
         waked.access().second = false;
-        auto lock = std::unique_lock<std::mutex>(waked.get_raw_mutex());
+        auto lock             = std::unique_lock<std::mutex>(waked.get_raw_mutex());
         condv.wait(lock, [this]() { return waked.assume_locked(); });
     }
     auto wait_for(auto duration) -> bool {
         waked.access().second = false;
-        auto lock = std::unique_lock<std::mutex>(waked.get_raw_mutex());
+        auto lock             = std::unique_lock<std::mutex>(waked.get_raw_mutex());
         return condv.wait_for(lock, duration, [this]() { return waked.assume_locked(); });
     }
     auto wakeup() -> void {
