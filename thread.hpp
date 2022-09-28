@@ -53,6 +53,12 @@ class Critical {
         return data;
     }
 
+    auto swap(T new_data) -> T {
+        auto [lock, data] = access();
+        std::swap(new_data, data);
+        return new_data;
+    }
+
     auto get_raw_mutex() -> std::mutex& {
         return mutex;
     }
