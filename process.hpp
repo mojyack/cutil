@@ -71,12 +71,15 @@ class Process {
         const auto exitted = static_cast<bool>(WIFEXITED(status));
         return {{exitted ? Result::Exit : Result::Signal, exitted ? WEXITSTATUS(status) : WTERMSIG(status)}, std::move(outputs[0]), std::move(outputs[1])};
     }
+
     auto get_pid() const -> pid_t {
         return pid;
     }
+
     auto get_stdin() -> FileDescriptor& {
         return fds[0][1];
     }
+    
     auto is_joinable() const -> bool {
         return !joined;
     }
@@ -158,6 +161,7 @@ class Process {
             _exit(0);
         }
     }
+
     ~Process() {
         if(is_joinable()) {
             join();

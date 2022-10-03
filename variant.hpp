@@ -19,6 +19,7 @@ class Variant {
     auto as_variant() -> std::variant<Ts...>& {
         return data;
     }
+
     auto index() const -> size_t {
         return data.index();
     }
@@ -49,7 +50,7 @@ class Variant {
     }
 
     template <size_t index = 0>
-    auto visit(auto visitor) -> auto {
+    auto visit(auto visitor) -> auto{
         if constexpr(index < sizeof...(Ts)) {
             if(index == data.index()) {
                 return visitor(get<index>());
@@ -62,7 +63,7 @@ class Variant {
     }
 
     template <size_t index = 0>
-    auto visit(auto visitor) const -> auto {
+    auto visit(auto visitor) const -> auto{
         if constexpr(index < sizeof...(Ts)) {
             if(index == data.index()) {
                 return visitor(get<index>());
@@ -85,7 +86,8 @@ class Variant {
         return *this;
     }
 
-    Variant() {}
+    Variant() = default;
+
     Variant(auto&& o) : data(std::move(o)) {}
 
     template <class T, class... Args>
