@@ -47,6 +47,10 @@ class Error {
         return what.data();
     }
 
+    operator bool() const {
+        return !what.empty();
+    }
+
     Error() = default;
     Error(std::string_view what) : what(what) {}
 };
