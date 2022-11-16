@@ -73,7 +73,14 @@ class Result {
         return std::get<Error>(data);
     }
 
-    auto unwrap() const -> T& {
+    auto unwrap() -> T& {
+        if(!std::holds_alternative<T>(data)) {
+            throw std::runtime_error(as_error().cstr());
+        }
+        return as_value();
+    }
+
+    auto unwrap() const -> const T& {
         if(!std::holds_alternative<T>(data)) {
             throw std::runtime_error(as_error().cstr());
         }
