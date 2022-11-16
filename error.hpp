@@ -73,6 +73,13 @@ class Result {
         return std::get<Error>(data);
     }
 
+    auto unwrap() const -> T& {
+        if(!std::holds_alternative<T>(data)) {
+            throw std::runtime_error(as_error().cstr());
+        }
+        return as_value();
+    }
+
     operator bool() const {
         return std::holds_alternative<T>(data);
     }
