@@ -20,6 +20,10 @@ class Variant {
         return data;
     }
 
+    auto as_variant() const -> const std::variant<Ts...>& {
+        return data;
+    }
+
     auto index() const -> size_t {
         return data.index();
     }
