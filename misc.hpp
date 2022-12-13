@@ -8,8 +8,8 @@
 namespace CUTIL_NS {
 #endif
 
-template <class T = std::byte>
-auto read_binary(std::string_view path) -> Result<std::vector<T>> {
+template <class T = std::byte, class CharT>
+auto read_binary(std::basic_string_view<CharT> path) -> Result<std::vector<T>> {
     auto ifs = std::ifstream(path);
     if(!ifs) {
         return Error("cannot open file");
@@ -26,7 +26,6 @@ auto read_binary(std::string_view path) -> Result<std::vector<T>> {
     }
     return r;
 }
-
 
 #ifdef CUTIL_NS
 }
