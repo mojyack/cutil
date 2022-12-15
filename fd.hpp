@@ -27,8 +27,8 @@ class FileDescriptor {
         return true;
     }
 
-    auto read(const size_t size) const -> std::optional<std::vector<uint8_t>> {
-        auto r = std::vector<uint8_t>(size);
+    auto read(const size_t size) const -> std::optional<std::vector<std::byte>> {
+        auto r = std::vector<std::byte>(size);
         return read(r.data(), size) ? std::make_optional(r) : std::nullopt;
     }
 
@@ -38,7 +38,7 @@ class FileDescriptor {
         return read(&r, sizeof(T)) ? std::make_optional(r) : std::nullopt;
     }
 
-    auto read_sized() const -> std::optional<std::vector<uint8_t>> {
+    auto read_sized() const -> std::optional<std::vector<std::byte>> {
         const auto size = read<size_t>();
         if(!size.has_value()) {
             return std::nullopt;
@@ -56,7 +56,7 @@ class FileDescriptor {
         return write(&data, size);
     }
 
-    auto write(const void* data, const size_t size) const -> bool {
+    auto write(const void* const data, const size_t size) const -> bool {
         auto wrote = size_t(0);
         while(wrote != size) {
             const auto r = ::write(fd, data, size);
@@ -74,8 +74,8 @@ class FileDescriptor {
         }
     }
 
-    auto forget() -> void {
-        fd = -1;
+    auto release() -> int {
+        return std::exchange(fd, -1);
     }
 
     auto as_handle() const -> int {
@@ -88,13 +88,8 @@ class FileDescriptor {
         return *this;
     }
 
-    auto operator=(FileDescriptor& o) -> FileDescriptor& {
-        return *this = std::move(o);
-    }
-
     auto operator=(FileDescriptor&& o) -> FileDescriptor& {
-        *this = o.fd;
-        o.forget();
+        *this = o.release();
         return *this;
     }
 
@@ -102,12 +97,8 @@ class FileDescriptor {
 
     FileDescriptor(const int fd) : fd(fd) {}
 
-    FileDescriptor(FileDescriptor& o) {
-        *this = o;
-    }
-
     FileDescriptor(FileDescriptor&& o) {
-        *this = o;
+        *this = std::move(o);
     }
 
     ~FileDescriptor() {
