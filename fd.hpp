@@ -82,6 +82,10 @@ class FileDescriptor {
         return fd;
     }
 
+    operator bool() const {
+        return fd != -1;
+    }
+
     auto operator=(const int new_fd) -> FileDescriptor& {
         close();
         fd = new_fd;
