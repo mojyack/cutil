@@ -78,6 +78,10 @@ class FileDescriptor {
         return std::exchange(fd, -1);
     }
 
+    auto clone() -> FileDescriptor {
+        return dup(fd);
+    }
+
     auto as_handle() const -> int {
         return fd;
     }
