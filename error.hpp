@@ -2,6 +2,7 @@
 #include <exception>
 #include <iostream>
 #include <sstream>
+#include <variant>
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
