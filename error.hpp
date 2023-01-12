@@ -44,7 +44,7 @@ class Error {
     std::string what;
 
   public:
-    auto cstr() -> const char* {
+    auto cstr() const -> const char* {
         return what.data();
     }
 
