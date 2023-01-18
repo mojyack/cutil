@@ -1,105 +1,299 @@
 #pragma once
-#include <variant>
+#include <tuple>
+
+#include "error.hpp"
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
 #endif
 
+template <class T>
+struct Tag {
+    using Type = T;
+};
+
 template <class... Ts>
 class Variant {
   private:
-    template <class>
-    struct Tag {};
+    template <size_t n>
+    using E = std::tuple_element_t<n, std::tuple<Ts...>>;
 
-    using Finder = std::variant<Tag<Ts>...>;
+    template <class T>
+    static constexpr auto false_v = false;
 
-    std::variant<Ts...> data;
+    static constexpr auto invalid_index = size_t(-1);
+
+    alignas(Ts...) std::byte data[std::max({sizeof(Ts)...})];
+    size_t index = invalid_index;
+
+    template <size_t n, class T>
+    static consteval auto find_index_of() -> size_t {
+        if constexpr(n < sizeof...(Ts)) {
+            if constexpr(std::is_same_v<E<n>, T>) {
+                return n;
+            } else {
+                return find_index_of<n + 1, T>();
+            }
+        } else {
+            static_assert(false_v<T>, "no such type");
+        }
+    }
+
+    template <size_t n>
+    static auto apply_bool(auto self, auto visitor) -> bool {
+        if constexpr(n < sizeof...(Ts)) {
+            if(n == self->index) {
+                visitor(self->template as<E<n>>());
+                return true;
+            }
+            return apply_bool<n + 1>(self, visitor);
+        }
+
+        return false;
+    }
+
+    template <size_t n, class R>
+    static auto apply_result(auto self, auto visitor) -> std::optional<R> {
+        if constexpr(n < sizeof...(Ts)) {
+            if(n == self->index) {
+                return visitor(self->template as<E<n>>());
+            }
+            return apply_result<n + 1, R>(self, visitor);
+        }
+
+        return std::nullopt;
+    }
+
+    static auto apply(auto self, auto visitor) -> decltype(auto) {
+        using R = decltype(visitor(self->template as<E<0>>()));
+        if constexpr(std::is_same_v<R, void>) {
+            if(!self->is_valid()) {
+                return false;
+            }
+            return apply_bool<0>(self, visitor);
+        } else {
+            if(!self->is_valid()) {
+                return std::optional<R>(std::nullopt);
+            }
+            return apply_result<0, R>(self, visitor);
+        }
+    }
+
+    // static auto copy_assign(Variant* self, Variant* other) -> void {
+    template <bool move>
+    static auto assign(Variant* const self, auto other) -> void {
+        if(!other->is_valid()) {
+            self->reset();
+            return;
+        }
+
+        if(self->index == other->index) {
+            self->apply([other](auto& v) {
+                other->apply([other, &v](auto& u) {
+                    if constexpr(move) {
+                        v = std::move(u);
+                        other->reset();
+                    } else {
+                        v = u;
+                    }
+                });
+            });
+            return;
+        }
+
+        self->reset();
+        other->apply([self, other](auto& v) {
+            using T = std::remove_cvref_t<decltype(v)>;
+            if constexpr(move) {
+                self->emplace<T>(std::move(v));
+                other->reset();
+            } else {
+                self->emplace<T>(v);
+            }
+        });
+        return;
+    }
 
   public:
-    auto as_variant() -> std::variant<Ts...>& {
-        return data;
-    }
+    template <class T>
+    static constexpr auto index_of = find_index_of<0, T>();
 
-    auto as_variant() const -> const std::variant<Ts...>& {
-        return data;
-    }
-
-    auto index() const -> size_t {
-        return data.index();
+    auto get_index() const -> size_t {
+        return index;
     }
 
     template <class T>
-    constexpr static auto index_of() -> size_t {
-        return Finder(Tag<T>{}).index();
+    auto get() -> T* {
+        return const_cast<T*>(std::as_const(*this).template get<T>());
     }
 
     template <class T>
-    auto get() -> T& {
-        return std::get<T>(data);
-    }
-
-    template <class T>
-    auto get() const -> const T& {
-        return std::get<T>(data);
-    }
-
-    template <size_t T>
-    auto get() -> auto& {
-        return std::get<T>(data);
-    }
-
-    template <size_t T>
-    auto get() const -> const auto& {
-        return std::get<T>(data);
-    }
-
-    template <size_t index = 0>
-    auto visit(auto visitor) -> auto{
-        if constexpr(index < sizeof...(Ts)) {
-            if(index == data.index()) {
-                return visitor(get<index>());
-            }
-            return visit<index + 1>(visitor);
+    auto get() const -> const T* {
+        if(index_of<T> == index) {
+            return std::bit_cast<const T*>(&data);
+        } else {
+            return nullptr;
         }
-
-        // unreachable
-        return decltype(visitor(get<0>()))();
     }
 
-    template <size_t index = 0>
-    auto visit(auto visitor) const -> auto{
-        if constexpr(index < sizeof...(Ts)) {
-            if(index == data.index()) {
-                return visitor(get<index>());
-            }
-            return visit<index + 1>(visitor);
-        }
+    template <class T>
+    auto as() -> T& {
+        return as<index_of<T>>();
+    }
 
-        // unreachable
-        return visitor(get<0>());
+    template <class T>
+    auto as() const -> const T& {
+        return as<index_of<T>>();
+    }
+
+    template <size_t n>
+    auto as() -> E<n>& {
+        return *std::bit_cast<E<n>*>(&data);
+    }
+
+    template <size_t n>
+    auto as() const -> const E<n>& {
+        return *std::bit_cast<const E<n>*>(&data);
+    }
+
+    auto apply(auto visitor) -> decltype(auto) {
+        return apply(this, visitor);
+    }
+
+    auto apply(auto visitor) const -> decltype(auto) {
+        return apply(this, visitor);
+    }
+
+    auto is_valid() const -> bool {
+        return index != invalid_index;
     }
 
     template <class T, class... Args>
-    auto emplace(Args&&... args) -> Variant<Ts...>& {
-        data.template emplace<T>(std::forward<Args>(args)...);
+    auto emplace(Args&&... args) -> T& {
+        reset();
+        new(&data) T(std::forward<Args>(args)...);
+        index = index_of<T>;
+        return as<T>();
+    }
+
+    auto reset() -> void {
+        if(!is_valid()) {
+            return;
+        }
+        apply([](auto& v) { std::destroy_at(&v); });
+        index = invalid_index;
+    }
+
+    auto operator=(Variant& o) -> Variant& {
+        assign<false>(this, &o);
         return *this;
     }
 
-    auto emplace(auto&& o) -> Variant<Ts...>& {
-        data = std::move(o);
+    auto operator=(const Variant& o) -> Variant& {
+        assign<false>(this, &o);
+        return *this;
+    }
+
+    auto operator=(Variant&& o) -> Variant& {
+        assign<true>(this, &o);
         return *this;
     }
 
     Variant() = default;
 
-    Variant(auto&& o) : data(std::move(o)) {}
-
     template <class T, class... Args>
-    Variant(std::in_place_type_t<T>, Args&&... args) : data(std::in_place_type<T>, std::forward<Args>(args)...) {}
+    Variant(Tag<T> tag, Args&&... args) {
+        emplace<T>(std::forward<Args>(args)...);
+    }
 
-    template <class... Args>
-    Variant(Args&&... args) : data(args...) {}
+    ~Variant() {
+        reset();
+    }
 };
+
+inline auto variant_test() -> void {
+    {
+        using V = Variant<int, float>;
+
+        dynamic_assert(!V().is_valid());
+
+        auto v = V(Tag<int>(), 1);
+        auto u = V(Tag<float>(), 1.0);
+        dynamic_assert(*v.get<int>() == 1);
+        dynamic_assert(*u.get<float>() == 1.0);
+
+        auto e = V();
+        v      = e;
+        dynamic_assert(!v.is_valid());
+
+        v = std::move(u);
+        dynamic_assert(*v.get<float>() == 1.0);
+        dynamic_assert(!u.is_valid());
+    }
+    {
+        static auto constructor      = 0;
+        static auto move_constructor = 0;
+        static auto copy_assign      = 0;
+        static auto move_assign      = 0;
+        static auto copy_constructor = 0;
+        static auto destructor       = 0;
+        struct Noisy {
+            auto operator=(Noisy&& o) {
+                move_assign += 1;
+            }
+
+            auto operator=(Noisy& o) {
+                copy_assign += 1;
+            }
+
+            Noisy() {
+                constructor += 1;
+            }
+
+            Noisy(Noisy&& o) {
+                move_constructor += 1;
+            }
+
+            Noisy(Noisy& o) {
+                copy_constructor += 1;
+            }
+
+            ~Noisy() {
+                destructor += 1;
+            }
+        };
+
+        using V = Variant<Noisy>;
+
+        auto v = V();
+        dynamic_assert(constructor == 0);
+
+        v.emplace<Noisy>();
+        dynamic_assert(constructor == 1);
+
+        v.reset();
+        dynamic_assert(destructor == 1);
+
+        auto u = V();
+        v.emplace<Noisy>();
+
+        u = v;
+        dynamic_assert(copy_constructor == 1 && v.is_valid());
+
+        u.reset();
+        u = std::move(v);
+        dynamic_assert(move_constructor == 1 && !v.is_valid());
+
+        v.emplace<Noisy>();
+        u.emplace<Noisy>();
+
+        u = v;
+        dynamic_assert(copy_assign == 1 && v.is_valid());
+
+        u = std::move(v);
+        dynamic_assert(move_assign == 1 && !v.is_valid());
+    }
+}
 
 #ifdef CUTIL_NS
 }
