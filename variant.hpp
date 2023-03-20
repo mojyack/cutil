@@ -40,13 +40,13 @@ class Variant {
     }
 
     template <size_t n>
-    static auto apply_bool(auto self, auto visitor) -> bool {
+    static auto apply_void(auto self, auto visitor) -> bool {
         if constexpr(n < sizeof...(Ts)) {
             if(n == self->index) {
                 visitor(self->template as<E<n>>());
                 return true;
             }
-            return apply_bool<n + 1>(self, visitor);
+            return apply_void<n + 1>(self, visitor);
         }
 
         return false;
@@ -70,7 +70,7 @@ class Variant {
             if(!self->is_valid()) {
                 return false;
             }
-            return apply_bool<0>(self, visitor);
+            return apply_void<0>(self, visitor);
         } else {
             if(!self->is_valid()) {
                 return std::optional<R>(std::nullopt);
@@ -90,12 +90,18 @@ class Variant {
         if(self->index == other->index) {
             self->apply([other](auto& v) {
                 other->apply([other, &v](auto& u) {
-                    if constexpr(move) {
-                        v = std::move(u);
-                        other->reset();
+                    using V = std::remove_cvref_t<decltype(v)>;
+                    using U = std::remove_cvref_t<decltype(u)>;
+                    if constexpr(std::same_as<V, U>) {
+                        if constexpr(move) {
+                            v = std::move(u);
+                            other->reset();
+                        } else {
+                            v = u;
+                            (void)other;
+                        }
                     } else {
-                        v = u;
-                        (void)other;
+                        // should not reach here
                     }
                 });
             });
@@ -173,7 +179,11 @@ class Variant {
     template <class T, class... Args>
     auto emplace(Args&&... args) -> T& {
         reset();
-        new(&data) T(std::forward<Args>(args)...);
+        if constexpr(std::is_constructible_v<T, Args...>) {
+            new(&data) T(std::forward<Args>(args)...);
+        } else {
+            new(&data) T{std::forward<Args>(args)...};
+        }
         index = index_of<T>;
         return as<T>();
     }
