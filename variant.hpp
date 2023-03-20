@@ -95,6 +95,7 @@ class Variant {
                         other->reset();
                     } else {
                         v = u;
+                        (void)other;
                     }
                 });
             });
@@ -109,6 +110,7 @@ class Variant {
                 other->reset();
             } else {
                 self->emplace<T>(v);
+                (void)other;
             }
         });
         return;
@@ -200,6 +202,10 @@ class Variant {
     }
 
     Variant() = default;
+
+    Variant(Variant&& o) {
+        assign<true>(this, &o);
+    }
 
     template <class T, class... Args>
     Variant(Tag<T>, Args&&... args) {
