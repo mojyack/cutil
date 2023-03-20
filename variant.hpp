@@ -202,7 +202,7 @@ class Variant {
     Variant() = default;
 
     template <class T, class... Args>
-    Variant(Tag<T> tag, Args&&... args) {
+    Variant(Tag<T>, Args&&... args) {
         emplace<T>(std::forward<Args>(args)...);
     }
 
@@ -238,11 +238,11 @@ inline auto variant_test() -> void {
         static auto copy_constructor = 0;
         static auto destructor       = 0;
         struct Noisy {
-            auto operator=(Noisy&& o) {
+            auto operator=(Noisy&&) {
                 move_assign += 1;
             }
 
-            auto operator=(Noisy& o) {
+            auto operator=(Noisy&) {
                 copy_assign += 1;
             }
 
@@ -250,11 +250,11 @@ inline auto variant_test() -> void {
                 constructor += 1;
             }
 
-            Noisy(Noisy&& o) {
+            Noisy(Noisy&&) {
                 move_constructor += 1;
             }
 
-            Noisy(Noisy& o) {
+            Noisy(Noisy&) {
                 copy_constructor += 1;
             }
 
