@@ -92,7 +92,7 @@ class Result {
         return std::holds_alternative<T>(data);
     }
 
-    Result(T&& data) : data(std::move(data)) {}
+    Result(T data) : data(std::move(data)) {}
 
     Result(const Error error = Error()) : data(error) {}
 };
