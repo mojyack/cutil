@@ -10,8 +10,11 @@ class Event {
     std::atomic_flag flag;
 
   public:
-    auto wait() -> void {
+    auto clear() -> void {
         flag.clear();
+    }
+
+    auto wait() -> void {
         flag.wait(false);
     }
 
