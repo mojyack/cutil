@@ -3,16 +3,17 @@
 #include <vector>
 
 #include "error.hpp"
+#include "result.hpp"
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
 #endif
 
 template <class T = std::byte>
-auto read_binary(auto path) -> Result<std::vector<T>> {
+auto read_binary(auto path) -> Result<std::vector<T>, StringError> {
     auto ifs = std::ifstream(std::move(path));
     if(!ifs) {
-        return Error("cannot open file");
+        return StringError("cannot open file");
     }
 
     ifs.seekg(0, std::ios_base::end);
@@ -22,7 +23,7 @@ auto read_binary(auto path) -> Result<std::vector<T>> {
     auto r = std::vector<T>((cur + sizeof(T) - 1) / sizeof(T));
     ifs.read(std::bit_cast<char*>(r.data()), cur);
     if(ifs.fail()) {
-        return Error("failed to read file");
+        return StringError("failed to read file");
     }
     return r;
 }
