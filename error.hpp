@@ -1,5 +1,4 @@
 #pragma once
-#include <exception>
 #include <iostream>
 #include <sstream>
 #include <variant>
@@ -39,7 +38,7 @@ auto dynamic_assert(const bool cond, Args... args) -> void {
     }
 }
 
-class Error {
+class StringError {
   private:
     std::string what;
 
@@ -52,14 +51,14 @@ class Error {
         return !what.empty();
     }
 
-    Error() = default;
-    Error(std::string_view what) : what(what) {}
+    StringError() = default;
+    StringError(std::string_view what) : what(what) {}
 };
 
-template <class T>
+template <class T, class E>
 class Result {
   private:
-    std::variant<T, Error> data;
+    std::variant<T, E> data;
 
   public:
     auto as_value() -> T& {
@@ -70,8 +69,8 @@ class Result {
         return std::get<T>(data);
     }
 
-    auto as_error() const -> Error {
-        return std::get<Error>(data);
+    auto as_error() const -> E {
+        return std::get<E>(data);
     }
 
     auto unwrap() -> T& {
@@ -94,7 +93,7 @@ class Result {
 
     Result(T data) : data(std::move(data)) {}
 
-    Result(const Error error = Error()) : data(error) {}
+    Result(const E error) : data(error) {}
 };
 
 #ifdef CUTIL_NS
