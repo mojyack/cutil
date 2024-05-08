@@ -7,11 +7,11 @@ namespace CUTIL_NS {
 
 template <class... Args>
 [[noreturn]] auto panic(Args... args) -> void {
-    auto ss = std::stringstream();
+    const auto message = build_string(std::forward<Args...>(args...));
 #ifdef CUTIL_EXCEPTION
-    throw std::runtime_error(ss.str());
+    throw std::runtime_error(message);
 #else
-    warn(ss.str());
+    warn(message);
     exit(1);
 #endif
 }
