@@ -45,6 +45,11 @@ auto line_print(const Location location, Args&&... args) -> void {
 }
 
 template <class... Args>
+auto line_warn(const Location location, Args&&... args) -> void {
+    warn(location.file, ":", location.line, " ", std::forward<Args>(args)...);
+}
+
+template <class... Args>
 auto line_assert(const bool cond, const Location location, Args&&... args) -> void {
     if(!cond) {
         line_panic(location, std::forward<Args>(args)...);
