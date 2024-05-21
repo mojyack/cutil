@@ -7,7 +7,10 @@ namespace CUTIL_NS {
 
 template <class... Args>
 [[noreturn]] auto panic(Args... args) -> void {
-    const auto message = build_string(std::forward<Args...>(args...));
+    auto message = std::string("panic");
+    if constexpr(sizeof...(args) != 0) {
+        message = build_string(std::forward<Args...>(args...));
+    }
 #ifdef CUTIL_EXCEPTION
     throw std::runtime_error(message);
 #else
