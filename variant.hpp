@@ -2,7 +2,7 @@
 #include <optional>
 #include <tuple>
 
-#include "error.hpp"
+#include "assert.hpp"
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
