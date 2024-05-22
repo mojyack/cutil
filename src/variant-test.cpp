@@ -1,12 +1,8 @@
-#pragma once
 #include "assert.hpp"
 #include "variant.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#endif
-
-inline auto variant_test() -> void {
+namespace {
+auto variant_test() -> void {
     {
         using V = Variant<int, float>;
 
@@ -89,7 +85,10 @@ inline auto variant_test() -> void {
         dynamic_assert(move_assign == 1 && !v.is_valid());
     }
 }
+} // namespace
 
-#ifdef CUTIL_NS
+auto main() -> int {
+    variant_test();
+    print("pass");
+    return 0;
 }
-#endif
