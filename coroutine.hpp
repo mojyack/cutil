@@ -73,7 +73,7 @@ struct CoRoutine {
 
     template <class... Args>
     auto start(auto routine, Args&&... args) -> void {
-        generator = routine(std::forward<Args...>(args...));
+        generator = routine(std::forward<Args>(args)...);
     }
 
     auto resume() -> YieldType {
