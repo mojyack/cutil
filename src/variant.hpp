@@ -213,6 +213,10 @@ class Variant {
 
     Variant() = default;
 
+    Variant(Variant& o) {
+        assign<false>(this, &o);
+    }
+
     Variant(Variant&& o) {
         assign<true>(this, &o);
     }
