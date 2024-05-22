@@ -227,3 +227,6 @@ class Variant {
     }
 };
 
+#ifdef CUTIL_NS
+}
+#endif
