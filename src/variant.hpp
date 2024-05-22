@@ -217,6 +217,10 @@ class Variant {
         assign<false>(this, &o);
     }
 
+    Variant(const Variant& o) {
+        assign<false>(this, &o);
+    }
+
     Variant(Variant&& o) {
         assign<true>(this, &o);
     }
