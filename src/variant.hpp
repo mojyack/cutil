@@ -182,7 +182,7 @@ class Variant {
         if constexpr(std::is_constructible_v<T, Args...>) {
             new(&data) T(std::forward<Args>(args)...);
         } else {
-            new(&data) T{std::forward<Args>(args)...};
+            new(&data) T{{std::forward<Args>(args)}...};
         }
         index = index_of<T>;
         return as<T>();
