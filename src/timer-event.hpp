@@ -1,4 +1,6 @@
 #pragma once
+#include <condition_variable>
+
 #include "critical.hpp"
 
 #ifdef CUTIL_NS
