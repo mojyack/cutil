@@ -3,6 +3,7 @@
 #include <bit>
 #include <optional>
 #include <tuple>
+#include <utility>
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
