@@ -223,7 +223,7 @@ class Variant {
         assign<false>(this, &o);
     }
 
-    Variant(Variant&& o) {
+    Variant(Variant&& o) noexcept {
         assign<true>(this, &o);
     }
 
