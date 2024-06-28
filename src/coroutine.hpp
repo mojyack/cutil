@@ -1,5 +1,6 @@
 #pragma once
 #include <coroutine>
+#include <exception>
 #include <utility>
 
 #ifdef CUTIL_NS
@@ -37,7 +38,7 @@ struct CoGenerator {
         }
 
         auto unhandled_exception() -> void {
-            exit(0);
+            std::terminate();
         }
     };
 
