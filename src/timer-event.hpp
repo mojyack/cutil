@@ -19,6 +19,7 @@ class TimerEvent {
         condv.wait(lock, [this]() { return waked.assume_locked(); });
     }
 
+    // returns: true => notified, false => timeup
     auto wait_for(auto duration) -> bool {
         waked.access().second = false;
         auto lock             = std::unique_lock<std::mutex>(waked.get_raw_mutex());
