@@ -26,6 +26,7 @@ auto main() -> int {
     for(auto i = 0u; i < threads.size(); i += 1) {
         threads[i] = std::thread([&, i]() {
             while(running) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(uint8_t(engine() / 255.0 * 100)));
                 auto intent = WaitersEventIntent(waiters_event);
                 ready.fetch_add(1);
                 while(running) {
