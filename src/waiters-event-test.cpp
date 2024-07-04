@@ -26,7 +26,7 @@ auto main() -> int {
     for(auto i = 0u; i < threads.size(); i += 1) {
         threads[i] = std::thread([&, i]() {
             while(running) {
-                waiters_event.join();
+                auto intent = WaitersEventIntent(waiters_event);
                 ready.fetch_add(1);
                 while(running) {
                     waiters_event.wait();
@@ -40,7 +40,6 @@ auto main() -> int {
                         // lock_print("not me, target was ", expected);
                     }
                 }
-                waiters_event.leave();
             }
         });
     }

@@ -81,6 +81,21 @@ class WaitersEvent {
     WaitersEvent(const WaitersEvent&) {}
 };
 
+class WaitersEventIntent {
+  private:
+    WaitersEvent& event;
+
+  public:
+    WaitersEventIntent(WaitersEvent& event)
+        : event(event) {
+        event.join();
+    }
+
+    ~WaitersEventIntent() {
+        event.leave();
+    }
+};
+
 #ifdef CUTIL_NS
 }
 #endif
