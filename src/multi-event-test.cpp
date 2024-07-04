@@ -27,7 +27,7 @@ auto main() -> int {
     print("ideal: ", num_iterates * num_threads, " result: ", int(count));
 
     running = false;
-    multi_event.notify(true);
+    multi_event.drain();
     for(auto i = 0u; i < threads.size(); i += 1) {
         threads[i].join();
     }

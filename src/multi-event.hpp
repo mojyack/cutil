@@ -8,34 +8,37 @@ namespace CUTIL_NS {
 // Multiple Waiter / Single Notifier
 class MultiEvent {
   private:
-    std::atomic_int  waiters;
-    std::atomic_flag waking;
+    std::atomic_int  total_waiters;
+    Event            all_waiters_synced;
     std::atomic_flag notified;
-    Event            waiters_complete;
 
   public:
     auto wait() -> void {
-        waking.wait(true);
+        total_waiters.fetch_add(1);
 
-        waiters.fetch_add(1);
         notified.wait(false);
-        if(waiters.fetch_sub(1) == 1) {
-            waiters_complete.notify();
+
+        if(total_waiters.fetch_sub(1) - 1 == 0) {
+            all_waiters_synced.notify();
         }
+
+        notified.wait(true);
     }
 
     auto notify(const bool finish = false) -> void {
-        waking.test_and_set();
-
         notified.test_and_set();
         notified.notify_all();
-        waiters_complete.wait();
-        if(!finish) {
-            notified.clear();
-        }
 
-        waking.clear();
-        waking.notify_all();
+        all_waiters_synced.wait();
+
+        notified.clear();
+        notified.notify_all();
+    }
+
+    auto drain() -> void {
+        while(total_waiters > 0) {
+            notify();
+        }
     }
 
     MultiEvent() = default;
