@@ -9,13 +9,7 @@ auto engine = std::mt19937((std::random_device())());
 
 #ifndef CUTIL_WAITERS_EVENT_DEBUG
 #undef lock_print
-auto cout_lock = std::mutex();
-template <class... Args>
-auto lock_print(Args... args) -> void {
-    cout_lock.lock();
-    (std::cout << ... << args) << std::endl;
-    cout_lock.unlock();
-}
+#include "lock-print.hpp"
 #endif
 
 auto main() -> int {

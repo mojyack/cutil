@@ -2,14 +2,7 @@
 #include "event.hpp"
 
 #ifdef CUTIL_WAITERS_EVENT_DEBUG
-#include <iostream>
-static auto cout_lock = std::mutex();
-template <class... Args>
-auto lock_print(Args... args) -> void {
-    cout_lock.lock();
-    (std::cout << ... << args) << std::endl;
-    cout_lock.unlock();
-}
+#include "lock-print.hpp"
 #else
 #define lock_print(...)
 #endif
