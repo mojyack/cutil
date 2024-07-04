@@ -5,7 +5,7 @@
 namespace CUTIL_NS {
 #endif
 
-// Multiple Waiter / Single Notifier
+// Multiple Waiters / Single Notifier
 class MultiEvent {
   private:
     std::atomic_int  total_waiters;

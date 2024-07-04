@@ -5,7 +5,7 @@
 namespace CUTIL_NS {
 #endif
 
-// Single Waiter / Multiple Notifier
+// Single Waiter / Multiple Notifiers
 class Event {
   private:
     std::atomic_flag flag;
