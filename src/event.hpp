@@ -18,7 +18,7 @@ class Event {
 
     auto notify() -> void {
         flag.test_and_set();
-        flag.notify_all();
+        flag.notify_one();
     }
 
     Event() = default;
