@@ -15,7 +15,7 @@ class Event {
         flag.clear();
     }
 
-    auto wakeup() -> void {
+    auto notify() -> void {
         flag.test_and_set();
         flag.notify_all();
     }
