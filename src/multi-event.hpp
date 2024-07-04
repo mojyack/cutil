@@ -1,5 +1,5 @@
 #pragma once
-#include <atomic>
+#include "event.hpp"
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
@@ -11,7 +11,7 @@ class MultiEvent {
     std::atomic_int  waiters;
     std::atomic_flag waking;
     std::atomic_flag notified;
-    std::atomic_flag waiters_complete;
+    Event            waiters_complete;
 
   public:
     auto wait() -> void {
@@ -20,8 +20,7 @@ class MultiEvent {
         waiters.fetch_add(1);
         notified.wait(false);
         if(waiters.fetch_sub(1) == 1) {
-            waiters_complete.test_and_set();
-            waiters_complete.notify_one();
+            waiters_complete.notify();
         }
     }
 
@@ -30,10 +29,9 @@ class MultiEvent {
 
         notified.test_and_set();
         notified.notify_all();
-        waiters_complete.wait(false);
+        waiters_complete.wait();
         if(!finish) {
             notified.clear();
-            waiters_complete.clear();
         }
 
         waking.clear();
