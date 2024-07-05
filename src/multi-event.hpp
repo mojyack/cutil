@@ -25,7 +25,8 @@ class MultiEvent {
         notified.wait(true);
     }
 
-    auto notify(const bool finish = false) -> void {
+    // blocks until at least waked up one thread
+    auto notify() -> void {
         notified.test_and_set();
         notified.notify_all();
 
@@ -35,10 +36,12 @@ class MultiEvent {
         notified.notify_all();
     }
 
-    auto drain() -> void {
-        while(total_waiters > 0) {
-            notify();
+    // if there are no waiters, returns immediately
+    auto notify_unblock() -> void {
+        if(total_waiters <= 0) {
+            return;
         }
+        notify();
     }
 
     MultiEvent() = default;
