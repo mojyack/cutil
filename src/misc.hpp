@@ -35,8 +35,7 @@ inline auto split(const std::string_view str, const std::string_view sep) -> std
         if(pos >= str.size()) {
             break;
         }
-        const auto prev = pos;
-        pos             = str.find(sep, pos);
+        const auto prev = std::exchange(pos, str.find(sep, pos));
         if(pos == std::string_view::npos) {
             if(prev != str.size()) {
                 ret.emplace_back(str.substr(prev));
@@ -44,7 +43,9 @@ inline auto split(const std::string_view str, const std::string_view sep) -> std
             break;
         }
 
-        ret.emplace_back(str.substr(prev, pos - prev));
+        if(pos - prev > 0) {
+            ret.emplace_back(str.substr(prev, pos - prev));
+        }
 
         pos += sep.size();
     }
