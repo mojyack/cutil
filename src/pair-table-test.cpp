@@ -8,7 +8,7 @@ enum Enum {
     C,
 };
 
-const auto table = make_pair_table<Enum, const char*>({
+const auto table = make_pair_table<Enum, std::string_view>({
     {Enum::A, "A"},
     {Enum::C, "C"},
 });
@@ -23,13 +23,13 @@ auto run() -> bool {
     if(const auto p = table.find("C"); !p || *p != Enum::C) {
         return false;
     }
-    if(const auto p = table.find(Enum::A); !p || std::string_view(*p) != "A") {
+    if(const auto p = table.find(Enum::A); !p || *p != "A") {
         return false;
     }
     if(const auto p = table.find(Enum::B); p) {
         return false;
     }
-    if(const auto p = table.find(Enum::C); !p || std::string_view(*p) != "C") {
+    if(const auto p = table.find(Enum::C); !p || *p != "C") {
         return false;
     }
     return true;
