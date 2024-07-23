@@ -5,6 +5,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 template <class... Args>
 [[noreturn]] auto panic(Args... args) -> void {
     auto message = std::string("panic");
@@ -59,6 +60,7 @@ auto line_assert(const bool cond, const Location location, Args&&... args) -> vo
         line_panic(location, std::forward<Args>(args)...);
     }
 }
+} // namespace
 
 #ifdef CUTIL_NS
 }

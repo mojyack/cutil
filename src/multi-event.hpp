@@ -5,6 +5,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 // Multiple Waiters / Single Notifier
 class MultiEvent {
   private:
@@ -48,6 +49,7 @@ class MultiEvent {
 
     MultiEvent(const MultiEvent&) {}
 };
+} // namespace
 
 #ifdef CUTIL_NS
 }

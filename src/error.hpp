@@ -5,6 +5,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 class StringError {
   private:
     std::string what;
@@ -21,6 +22,7 @@ class StringError {
     StringError() = default;
     StringError(std::string_view what) : what(what) {}
 };
+}
 
 #ifdef CUTIL_NS
 }

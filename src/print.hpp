@@ -6,6 +6,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 template <class... Args>
 auto warn(Args... args) -> void {
     (std::cerr << ... << args) << std::endl;
@@ -22,6 +23,7 @@ auto build_string(Args... args) -> std::string {
     (ss << ... << args);
     return ss.str();
 }
+} // namespace
 
 #ifdef CUTIL_NS
 }

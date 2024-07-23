@@ -11,6 +11,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 class FileDescriptor {
   private:
     int fd = -1;
@@ -143,6 +144,7 @@ class EventFileDescriptor {
 
     EventFileDescriptor() : fd(eventfd(0, 0)) {}
 };
+} // namespace
 
 #ifdef CUTIL_NS
 }

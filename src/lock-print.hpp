@@ -7,7 +7,6 @@ namespace CUTIL_NS {
 
 namespace {
 inline auto cout_lock = std::mutex();
-}
 
 template <class... Args>
 auto lock_print(Args... args) -> void {
@@ -15,6 +14,7 @@ auto lock_print(Args... args) -> void {
     (std::cout << ... << args) << std::endl;
     cout_lock.unlock();
 }
+} // namespace
 
 #ifdef CUTIL_NS
 }

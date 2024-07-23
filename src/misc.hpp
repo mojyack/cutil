@@ -9,6 +9,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 template <class T = std::byte>
 auto read_binary(auto path) -> Result<std::vector<T>, StringError> {
     auto ifs = std::ifstream(std::move(path));
@@ -90,6 +91,7 @@ inline auto split_args(const std::string_view str) -> std::vector<std::string_vi
     // internal::dynamic_assert(qot == '\0', "unclosed quotes");
     return result;
 }
+} // namespace
 
 #ifdef CUTIL_NS
 }

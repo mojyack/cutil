@@ -7,6 +7,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 template <class T>
 struct CoGenerator {
     struct promise_type {
@@ -87,6 +88,7 @@ struct CoRoutine {
         return generator.handle.done();
     }
 };
+} // namespace
 
 #ifdef CUTIL_NS
 }

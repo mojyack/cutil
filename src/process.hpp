@@ -16,6 +16,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 class Process {
   private:
     pid_t               pid    = 0;
@@ -79,7 +80,7 @@ class Process {
     auto get_stdin() -> FileDescriptor& {
         return fds[0][1];
     }
-    
+
     auto is_joinable() const -> bool {
         return !joined;
     }
@@ -168,6 +169,7 @@ class Process {
         }
     }
 };
+} // namespace
 
 #ifdef CUTIL_NS
 }

@@ -7,6 +7,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 template <class T>
 class WritersReaderBuffer {
   private:
@@ -26,6 +27,8 @@ class WritersReaderBuffer {
         return data;
     }
 };
+} // namespace
+
 #ifdef CUTIL_NS
 }
 #endif

@@ -9,6 +9,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 template <class T>
 struct Tag {
     using Type = T;
@@ -236,6 +237,7 @@ class Variant {
         reset();
     }
 };
+} // namespace
 
 #ifdef CUTIL_NS
 }

@@ -11,6 +11,7 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
 class WaitersEvent {
   private:
     std::atomic_int  total_waiters;
@@ -95,6 +96,7 @@ class WaitersEventIntent {
         event.leave();
     }
 };
+} // namespace
 
 #ifdef CUTIL_NS
 }
