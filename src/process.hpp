@@ -8,9 +8,8 @@
 #include <unistd.h>
 #include <wait.h>
 
-#include "error.hpp"
+#include "assert.hpp"
 #include "fd.hpp"
-#include "thread.hpp"
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
