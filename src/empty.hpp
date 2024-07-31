@@ -4,6 +4,9 @@
 namespace CUTIL_NS {
 #endif
 
+namespace {
+
+}
 
 #ifdef CUTIL_NS
 }
