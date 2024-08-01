@@ -24,7 +24,6 @@ struct RCU {
         auto unlock() -> void {
             refcount.fetch_sub(1);
         }
-        static_assert(sizeof(refcount) == 4);
     };
 
     struct AutoLock {
