@@ -9,7 +9,7 @@ struct Pos {
 namespace args {
 namespace {
 template <>
-auto from_string<Pos>(std::string_view str) -> std::optional<Pos> {
+auto from_string<Pos>(const char* str) -> std::optional<Pos> {
     auto elms = split(str, ",");
     if(elms.size() != 2) {
         return std::nullopt;
@@ -43,14 +43,16 @@ auto parse(auto& parser, const char* const str) -> bool {
 
 auto test1() -> void {
     struct Args {
-        int    pint;
-        int    kint;
-        double pdouble;
-        double kdouble;
-        bool   pflag;
-        bool   kflag;
-        Pos    ppos;
-        Pos    kpos;
+        int         pint;
+        int         kint;
+        double      pdouble;
+        double      kdouble;
+        const char* pstr;
+        const char* kstr;
+        bool        pflag;
+        bool        kflag;
+        Pos         ppos;
+        Pos         kpos;
     };
     auto parser = args::Parser<Pos>();
     auto args   = Args();
@@ -58,12 +60,18 @@ auto test1() -> void {
     parser.kwarg(&args.kint, {"-n", "--num"}, {.value_desc = "INT", .arg_desc = "positional interger value"});
     parser.arg(&args.pdouble, {.value_desc = "FLOAT", .arg_desc = "positional float value"});
     parser.kwarg(&args.kdouble, {"-f", "--float"}, {.value_desc = "FLOAT", .arg_desc = "positional float value"});
+    parser.arg(&args.pstr, {.value_desc = "STR", .arg_desc = "positional string value"});
+    parser.kwarg(&args.kstr, {"-s", "--string"}, {.value_desc = "STR", .arg_desc = "positional string value"});
     parser.kwarg(&args.kflag, {"-b", "--bool"}, {.value_desc = "FLAG", .arg_desc = "positional boolean value"});
     parser.arg(&args.ppos, {.value_desc = "X,Y", .arg_desc = "custom value type"});
     parser.kwarg(&args.kpos, {"-p", "--pos"}, {.value_desc = "FLOAT", .arg_desc = "custom value type"});
     print("usage: test ", parser.get_help());
-    print("parse: ", parse(parser, "test -n 2 -f 2.0 -b 1 -p 100,200 1.0 300,400") ? "ok" : "error");
-    if(args.pint != 1 || args.kint != 2 || args.pdouble != 1.0 || args.kdouble != 2.0 || args.kflag != true || args.ppos.x != 300 || args.ppos.y != 400 || args.kpos.x != 100 || args.kpos.y != 200) {
+    print("parse: ", parse(parser, "test -n 2 -f 2.0 -s hello -b 1 -p 100,200 1.0 world 300,400") ? "ok" : "error");
+    if(args.pint != 1 || args.kint != 2 ||
+       args.pdouble != 1.0 || args.kdouble != 2.0 ||
+       std::string_view(args.kstr) != "hello" || std::string_view(args.pstr) != "world" ||
+       args.kflag != true ||
+       args.ppos.x != 300 || args.ppos.y != 400 || args.kpos.x != 100 || args.kpos.y != 200) {
         print("args: error");
     } else {
         print("args: ok");
@@ -72,6 +80,8 @@ auto test1() -> void {
     print("kint: ", args.kint);
     print("pdouble: ", args.pdouble);
     print("kdouble: ", args.kdouble);
+    print("pstr: ", args.pstr);
+    print("kstr: ", args.kstr);
     // print("pflag: ", args.pflag);
     print("kflag: ", args.kflag);
     print("ppos: ", args.ppos.x, ",", args.ppos.y);
