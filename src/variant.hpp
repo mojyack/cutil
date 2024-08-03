@@ -10,11 +10,6 @@ namespace CUTIL_NS {
 #endif
 
 namespace {
-template <class T>
-struct Tag {
-    using Type = T;
-};
-
 template <class... Ts>
 class Variant {
   private:
@@ -199,6 +194,13 @@ class Variant {
         index = invalid_index;
     }
 
+    template <class T, class... Args>
+    static auto create(Args&&... args) -> Variant {
+        auto ret = Variant();
+        ret.template emplace<T>(std::forward<Args>(args)...);
+        return ret;
+    }
+
     auto operator=(Variant& o) -> Variant& {
         assign<false>(this, &o);
         return *this;
@@ -226,11 +228,6 @@ class Variant {
 
     Variant(Variant&& o) noexcept {
         assign<true>(this, &o);
-    }
-
-    template <class T, class... Args>
-    Variant(Tag<T>, Args&&... args) {
-        emplace<T>(std::forward<Args>(args)...);
     }
 
     ~Variant() {

@@ -8,8 +8,8 @@ auto variant_test() -> void {
 
         dynamic_assert(!V().is_valid());
 
-        auto v = V(Tag<int>(), 1);
-        auto u = V(Tag<float>(), 1.0);
+        auto v = V::create<int>(1);
+        auto u = V::create<float>(1.0);
         dynamic_assert(*v.get<int>() == 1);
         dynamic_assert(*u.get<float>() == 1.0);
 
