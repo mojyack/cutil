@@ -146,11 +146,24 @@ auto test5() -> void {
     print("parse: ", !parse(parser, "test 1 -2") ? "ok" : "error");
 }
 
+auto test6() -> void {
+    struct Args {
+        bool required;
+        bool help;
+    };
+    auto parser = args::Parser();
+    auto args   = Args();
+    parser.arg(&args.required, {.arg_desc = "required"});
+    parser.kwarg(&args.help, {"-h", "--help"}, {.arg_desc = "help", .no_error_check = true});
+    print("parse: ", parse(parser, "test -h") ? "ok" : "error");
+}
+
 auto main() -> int {
     test1();
     test2();
     test3();
     test4();
     test5();
+    test6();
     return 0;
 }

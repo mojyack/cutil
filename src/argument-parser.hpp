@@ -77,6 +77,7 @@ struct ArgumentSpec {
     std::string_view arg_desc          = "";
     State            state             = State::Uninitialized;
     bool             invert_flag_value = false;
+    bool             no_error_check    = false;
 };
 
 using Keys = std::vector<std::string_view>;
@@ -174,7 +175,8 @@ class Parser {
             return ret && *ret;
         };
 
-        auto index = 1;
+        auto skip_error_check = false;
+        auto index            = 1;
     loop:
         if(index >= argc) {
             goto check;
@@ -195,6 +197,7 @@ class Parser {
                 break;
             }
             entry.found = true;
+            skip_error_check |= entry.spec.no_error_check;
             goto next;
         }
 
@@ -219,6 +222,9 @@ class Parser {
         goto loop;
 
     check:
+        if(skip_error_check) {
+            return true;
+        }
         for(auto& [keys, entry] : keyword_args) {
             assert(entry.found || entry.spec.state != State::Uninitialized, "required argument ", keys[0], " is missing");
         }
