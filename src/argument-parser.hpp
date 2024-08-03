@@ -12,29 +12,31 @@ namespace CUTIL_NS {
 
 namespace args {
 namespace {
+using CStr = const char*;
+
 // from string
 template <class T>
-auto from_string(std::string_view str) -> std::optional<T>;
+auto from_string(CStr str) -> std::optional<T>;
 
 template <>
-auto from_string<bool>(std::string_view) -> std::optional<bool> {
+auto from_string<bool>(CStr) -> std::optional<bool> {
     return std::nullopt;
 }
 
 template <>
-auto from_string<int>(std::string_view str) -> std::optional<int> {
+auto from_string<int>(CStr str) -> std::optional<int> {
     return from_chars<int>(str);
 }
 
 template <>
-auto from_string<double>(std::string_view str) -> std::optional<double> {
+auto from_string<double>(CStr str) -> std::optional<double> {
     errno        = 0;
     const auto v = std::strtod(std::string(str).data(), NULL);
     return errno == 0 ? std::optional(v) : std::nullopt;
 }
 
 template <>
-auto from_string<std::string_view>(std::string_view str) -> std::optional<std::string_view> {
+auto from_string<CStr>(CStr str) -> std::optional<CStr> {
     return str;
 }
 
@@ -58,8 +60,8 @@ auto to_string<double>(const double& data) -> std::string {
 }
 
 template <>
-auto to_string<std::string_view>(const std::string_view& data) -> std::string {
-    return std::string(data);
+auto to_string<CStr>(const CStr& data) -> std::string {
+    return data;
 }
 
 enum class State {
@@ -91,7 +93,7 @@ using Keys = std::vector<std::string_view>;
 template <class... Ts>
 class Parser {
   private:
-    using DataPtr = Variant<bool*, int*, double*, std::string_view*, Ts*...>;
+    using DataPtr = Variant<bool*, int*, double*, CStr*, Ts*...>;
 
     struct Argument {
         DataPtr      data;
@@ -158,7 +160,7 @@ class Parser {
     }
 
     auto parse(const int argc, const char* const* const argv) -> bool {
-        auto parse_data = [](Argument& entry, std::string_view str) -> bool {
+        auto parse_data = [](Argument& entry, CStr str) -> bool {
             const auto ret = entry.data.apply([str, &entry](auto& ptr) {
                 using T = std::remove_pointer_t<std::remove_cvref_t<decltype(ptr)>>;
 
