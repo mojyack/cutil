@@ -23,9 +23,10 @@ auto from_string<bool>(CStr) -> std::optional<bool> {
     return std::nullopt;
 }
 
-template <>
-auto from_string<int>(CStr str) -> std::optional<int> {
-    return from_chars<int>(str);
+template <class T>
+    requires std::is_integral_v<T> && (!std::is_same_v<T, bool>)
+auto from_string(CStr str) -> std::optional<T> {
+    return from_chars<T>(str);
 }
 
 template <>
@@ -49,8 +50,9 @@ auto to_string<bool>(const bool&) -> std::string {
     return "";
 }
 
-template <>
-auto to_string<int>(const int& data) -> std::string {
+template <class T>
+    requires std::is_integral_v<T> && (!std::is_same_v<T, bool>)
+auto to_string(const T& data) -> std::string {
     return std::to_string(data);
 }
 

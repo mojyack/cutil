@@ -116,9 +116,41 @@ auto test3() -> void {
     print("args:", args.num1 == 8080 && args.num2 == 1 ? "ok" : "error");
 }
 
+auto test4() -> void {
+    struct Args {
+        int8_t  i8;
+        uint8_t u8;
+        ssize_t i64;
+        size_t  u64;
+    };
+    auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
+    auto args   = Args();
+    parser.arg(&args.i8, {.value_desc = "INT", .arg_desc = "i8"});
+    parser.arg(&args.u8, {.value_desc = "INT", .arg_desc = "u8"});
+    parser.arg(&args.i64, {.value_desc = "INT", .arg_desc = "i64"});
+    parser.arg(&args.u64, {.value_desc = "INT", .arg_desc = "u64"});
+    print("usage: test ", parser.get_help());
+    print("parse: ", parse(parser, "test -1 2 -3 4") ? "ok" : "error");
+    print("args:", args.i8 == -1 && args.u8 == 2 && args.i64 == -3 && args.u64 == 4 ? "ok" : "error");
+}
+
+auto test5() -> void {
+    struct Args {
+        int8_t  i8;
+        uint8_t u8;
+    };
+    auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
+    auto args   = Args();
+    parser.arg(&args.i8, {.value_desc = "INT", .arg_desc = "i8"});
+    parser.arg(&args.u8, {.value_desc = "INT", .arg_desc = "u8"});
+    print("parse: ", !parse(parser, "test 1 -2") ? "ok" : "error");
+}
+
 auto main() -> int {
     test1();
     test2();
     test3();
+    test4();
+    test5();
     return 0;
 }
