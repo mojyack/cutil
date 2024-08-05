@@ -88,8 +88,15 @@ auto rcu_main(bool updater) -> void {
             validate_array(rcu->data.arr);
             rcu->unlock();
             score.fetch_add(1);
-            continue;
+        }
+    }
+}
 
+auto rcu_autolock_main(bool updater) -> void {
+    if(updater) {
+        rcu_main(true);
+    } else {
+        while(running) {
             auto [lock, data] = rcu_data.access();
             validate_array(data.arr);
             score.fetch_add(1);
@@ -140,10 +147,14 @@ auto main() -> int {
     print("=== rcu ===");
     auto rcu_score = run_test(rcu_main, dangerous_score);
 
+    print("=== rcu(autolock) ===");
+    auto rcu_score2 = run_test(rcu_autolock_main, dangerous_score);
+
     print("=== result ===");
-    print("dangerous: ", dangerous_score, " (", dangerous_score / 1'000'100.0, "M)");
-    print("mutex:     ", mutex_score, " (", mutex_score / 1'000'100.0, "M)");
-    print("rcu:       ", rcu_score, " (", rcu_score / 1'000'100.0, "M)");
+    print("dangerous:     ", dangerous_score, " (", dangerous_score / 1'000'100.0, "M)");
+    print("mutex:         ", mutex_score, " (", mutex_score / 1'000'100.0, "M)");
+    print("rcu:           ", rcu_score, " (", rcu_score / 1'000'100.0, "M)");
+    print("rcu(autolock): ", rcu_score2, " (", rcu_score2 / 1'000'100.0, "M)");
 
     return 0;
 }
