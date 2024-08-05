@@ -30,7 +30,7 @@ inline auto split(const std::string_view str, const std::string_view sep) -> std
     return ret;
 }
 
-inline auto split_args(const std::string_view str) -> std::vector<std::string_view> {
+inline auto split_like_shell(const std::string_view str) -> std::vector<std::string_view> {
     auto       result = std::vector<std::string_view>();
     const auto len    = str.size();
     auto       qot    = '\0';
