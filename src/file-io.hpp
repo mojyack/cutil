@@ -9,7 +9,7 @@ namespace CUTIL_NS {
 #endif
 
 namespace {
-auto read_file(const char* const path) -> std::optional<std::vector<std::byte>> {
+inline auto read_file(const char* const path) -> std::optional<std::vector<std::byte>> {
     auto fs = std::ifstream(path);
     if(!fs) {
         return std::nullopt;
@@ -29,7 +29,7 @@ auto read_file(const char* const path) -> std::optional<std::vector<std::byte>> 
     return ret;
 }
 
-auto write_file(const char* const path, const std::span<const std::byte> data) -> bool {
+inline auto write_file(const char* const path, const std::span<const std::byte> data) -> bool {
     auto fs = std::ofstream(path);
     if(!fs) {
         return false;
