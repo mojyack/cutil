@@ -72,9 +72,9 @@ struct RCU {
         goto loop;
     }
 
-    auto access() -> std::pair<AutoLock, T&> {
+    auto access() -> std::pair<AutoLock&&, T&> {
         auto data = lock();
-        return {{data}, data->data};
+        return {AutoLock{data}, data->data};
     }
 };
 } // namespace
