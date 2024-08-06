@@ -1,4 +1,3 @@
-#define CUTIL_NS test
 #include "argument-parser.hpp"
 #include "split.hpp"
 
@@ -7,7 +6,8 @@ struct Pos {
     int y;
 };
 
-namespace test::args {
+namespace {
+namespace args {
 template <>
 auto from_string<Pos>(const char* str) -> std::optional<Pos> {
     auto elms = split(str, ",");
@@ -26,7 +26,8 @@ template <>
 auto to_string<Pos>(const Pos& data) -> std::string {
     return build_string(data.x, ",", data.y);
 }
-} // namespace test::args
+} // namespace args
+} // namespace
 
 namespace test {
 auto parse(auto& parser, const char* const str) -> bool {

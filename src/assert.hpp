@@ -1,7 +1,12 @@
 #pragma once
 #include "print.hpp"
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 template <class... Args>
 [[noreturn]] auto panic(Args... args) -> void {
     auto message = std::string("panic");
@@ -56,4 +61,4 @@ auto line_assert(const bool cond, const Location location, Args&&... args) -> vo
         line_panic(location, std::forward<Args>(args)...);
     }
 }
-} // namespace CUTIL_NS
+}

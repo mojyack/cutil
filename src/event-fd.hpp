@@ -4,7 +4,12 @@
 
 #include "fd.hpp"
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 class EventFileDescriptor {
   private:
     const FileDescriptor fd;
@@ -37,4 +42,4 @@ class EventFileDescriptor {
 
     EventFileDescriptor() : fd(eventfd(0, 0)) {}
 };
-} // namespace CUTIL_NS
+}

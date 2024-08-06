@@ -2,7 +2,12 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 template <class... Args>
 auto warn(Args... args) -> void {
     (std::cerr << ... << args) << std::endl;
@@ -19,4 +24,4 @@ auto build_string(Args... args) -> std::string {
     (ss << ... << args);
     return ss.str();
 }
-} // namespace CUTIL_NS
+}

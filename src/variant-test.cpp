@@ -1,4 +1,3 @@
-#define CUTIL_NS
 #include "assert.hpp"
 #include "variant.hpp"
 

@@ -1,6 +1,5 @@
 #include <thread>
 
-#define CUTIL_NS
 #include "print.hpp"
 #include "rcu.hpp"
 

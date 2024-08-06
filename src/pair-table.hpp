@@ -1,7 +1,12 @@
 #pragma once
 #include <array>
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 template <class T, class U, size_t N>
 struct PairTable {
     using Pair = std::pair<T, U>;
@@ -33,4 +38,4 @@ auto make_pair_table(std::pair<T, U> (&&values)[N]) -> PairTable<T, U, N> {
         .array = std::to_array(values),
     };
 }
-} // namespace CUTIL_NS
+}

@@ -1,7 +1,12 @@
 #pragma once
 #include "event.hpp"
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 // Multiple Waiters / Single Notifier
 class MultiEvent {
   private:
@@ -45,4 +50,4 @@ class MultiEvent {
 
     MultiEvent(const MultiEvent&) {}
 };
-} // namespace CUTIL_NS
+}

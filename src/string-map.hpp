@@ -4,7 +4,12 @@
 #include <string_view>
 #include <unordered_map>
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 namespace internal {
 struct StringHash {
     using is_transparent = void;
@@ -27,4 +32,4 @@ struct StringHash {
 // .insert() not supported yet(P2363)
 template <class T>
 using StringMap = std::unordered_map<std::string, T, internal::StringHash, std::ranges::equal_to>;
-} // namespace CUTIL_NS
+}

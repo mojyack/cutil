@@ -1,7 +1,12 @@
 #pragma once
 #include <atomic>
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 // Single Waiter / Multiple Notifiers
 class Event {
   private:
@@ -22,4 +27,4 @@ class Event {
 
     Event(const Event&) {}
 };
-} // namespace CUTIL_NS
+}

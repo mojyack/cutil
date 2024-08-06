@@ -3,7 +3,12 @@
 
 #include "critical.hpp"
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 template <class T>
 class WritersReaderBuffer {
   private:
@@ -23,4 +28,4 @@ class WritersReaderBuffer {
         return data;
     }
 };
-} // namespace CUTIL_NS
+}

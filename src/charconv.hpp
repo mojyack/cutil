@@ -3,7 +3,12 @@
 #include <optional>
 #include <string_view>
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 template <std::integral T>
 auto from_chars(const std::string_view str, const int base = 10) -> std::optional<T> {
     auto r = T();
@@ -23,4 +28,4 @@ auto from_chars(const std::string_view str) -> std::optional<T> {
         return std::nullopt;
     }
 }
-} // namespace CUTIL_NS
+}

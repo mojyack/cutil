@@ -1,4 +1,3 @@
-#define CUTIL_NS
 #include "print.hpp"
 #include "split.hpp"
 

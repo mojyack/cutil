@@ -1,7 +1,12 @@
 #pragma once
 #include <bit>
 
+#ifdef CUTIL_NS
 namespace CUTIL_NS {
+#else
+namespace {
+#endif
+
 template <class Container, class Member>
 auto container_of(Member* const ptr, const Member Container::*member) -> Container* {
     struct OffsetOf {
@@ -12,4 +17,4 @@ auto container_of(Member* const ptr, const Member Container::*member) -> Contain
 
     return std::bit_cast<Container*>(std::bit_cast<std::byte*>(ptr) - OffsetOf::offset_of(member));
 }
-} // namespace CUTIL_NS
+}
