@@ -12,28 +12,28 @@ using CStr = const char*;
 
 // from string
 template <class T>
-auto from_string(CStr str) -> std::optional<T>;
+inline auto from_string(CStr str) -> std::optional<T>;
 
 template <>
-auto from_string<bool>(CStr) -> std::optional<bool> {
+inline auto from_string<bool>(CStr) -> std::optional<bool> {
     return std::nullopt;
 }
 
 template <class T>
     requires std::is_integral_v<T> && (!std::is_same_v<T, bool>)
-auto from_string(CStr str) -> std::optional<T> {
+inline auto from_string(CStr str) -> std::optional<T> {
     return from_chars<T>(str);
 }
 
 template <>
-auto from_string<double>(CStr str) -> std::optional<double> {
+inline auto from_string<double>(CStr str) -> std::optional<double> {
     errno        = 0;
     const auto v = std::strtod(std::string(str).data(), NULL);
     return errno == 0 ? std::optional(v) : std::nullopt;
 }
 
 template <>
-auto from_string<CStr>(CStr str) -> std::optional<CStr> {
+inline auto from_string<CStr>(CStr str) -> std::optional<CStr> {
     return str;
 }
 
@@ -42,7 +42,7 @@ template <class T>
 auto to_string(const T& data) -> std::string;
 
 template <>
-auto to_string<bool>(const bool&) -> std::string {
+inline auto to_string<bool>(const bool&) -> std::string {
     return "";
 }
 
@@ -53,12 +53,12 @@ auto to_string(const T& data) -> std::string {
 }
 
 template <>
-auto to_string<double>(const double& data) -> std::string {
+inline auto to_string<double>(const double& data) -> std::string {
     return std::to_string(data);
 }
 
 template <>
-auto to_string<CStr>(const CStr& data) -> std::string {
+inline auto to_string<CStr>(const CStr& data) -> std::string {
     return data;
 }
 
