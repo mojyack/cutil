@@ -3,11 +3,7 @@
 
 #include "critical.hpp"
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
-namespace {
 class TimerEvent {
   private:
     std::condition_variable condv;
@@ -32,8 +28,4 @@ class TimerEvent {
         condv.notify_all();
     }
 };
-} // namespace
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS

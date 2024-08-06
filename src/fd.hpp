@@ -6,11 +6,7 @@
 
 #include <unistd.h>
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
-namespace {
 class FileDescriptor {
   private:
     int fd = -1;
@@ -110,8 +106,4 @@ class FileDescriptor {
         close();
     }
 };
-} // namespace
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS

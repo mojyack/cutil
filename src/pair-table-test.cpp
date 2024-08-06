@@ -1,3 +1,4 @@
+#define CUTIL_NS
 #include "pair-table.hpp"
 #include "print.hpp"
 

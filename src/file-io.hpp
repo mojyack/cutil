@@ -4,11 +4,7 @@
 #include <span>
 #include <vector>
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
-namespace {
 inline auto read_file(const char* const path) -> std::optional<std::vector<std::byte>> {
     auto fs = std::ifstream(path);
     if(!fs) {
@@ -43,8 +39,4 @@ inline auto write_file(const char* const path, const std::span<const std::byte> 
 
     return true;
 }
-} // namespace
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS

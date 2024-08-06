@@ -3,11 +3,7 @@
 #include <thread>
 #include <utility>
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
-namespace {
 template <class T>
 struct RCU {
   private:
@@ -77,8 +73,4 @@ struct RCU {
         return {AutoLock{data}, data->data};
     }
 };
-} // namespace
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS

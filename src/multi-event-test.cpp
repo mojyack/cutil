@@ -1,6 +1,7 @@
 #include <array>
 #include <thread>
 
+#define CUTIL_NS
 #include "multi-event.hpp"
 #include "print.hpp"
 

@@ -6,12 +6,8 @@
 #include "print.hpp"
 #include "variant.hpp"
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
 namespace args {
-namespace {
 using CStr = const char*;
 
 // from string
@@ -238,9 +234,5 @@ class Parser {
 
 #pragma pop_macro("assert")
 #pragma pop_macro("bail")
-} // namespace
 } // namespace args
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS

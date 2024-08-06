@@ -2,11 +2,7 @@
 #include <mutex>
 #include <optional>
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
-namespace {
 template <class T>
 class Critical {
   private:
@@ -66,8 +62,4 @@ class Critical {
     Critical(Args&&... args) : data(std::move(args)...) {}
     Critical() {}
 };
-}
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS

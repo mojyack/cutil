@@ -1,3 +1,4 @@
+#define CUTIL_NS test
 #include "argument-parser.hpp"
 #include "split.hpp"
 
@@ -6,8 +7,7 @@ struct Pos {
     int y;
 };
 
-namespace args {
-namespace {
+namespace test::args {
 template <>
 auto from_string<Pos>(const char* str) -> std::optional<Pos> {
     auto elms = split(str, ",");
@@ -26,9 +26,9 @@ template <>
 auto to_string<Pos>(const Pos& data) -> std::string {
     return build_string(data.x, ",", data.y);
 }
-} // namespace
-} // namespace args
+} // namespace test::args
 
+namespace test {
 auto parse(auto& parser, const char* const str) -> bool {
     auto strs = std::vector<std::string>();
     auto argv = std::vector<const char*>();
@@ -157,13 +157,14 @@ auto test6() -> void {
     parser.kwarg(&args.help, {"-h", "--help"}, {.arg_desc = "help", .no_error_check = true});
     print("parse: ", parse(parser, "test -h") ? "ok" : "error");
 }
+} // namespace test
 
 auto main() -> int {
-    test1();
-    test2();
-    test3();
-    test4();
-    test5();
-    test6();
+    test::test1();
+    test::test2();
+    test::test3();
+    test::test4();
+    test::test5();
+    test::test6();
     return 0;
 }

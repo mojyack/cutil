@@ -3,11 +3,7 @@
 
 #include "assert.hpp"
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
-namespace {
 template <class T, class E>
 class Result {
   private:
@@ -44,8 +40,4 @@ class Result {
 
     Result(const E error) : data(error) {}
 };
-} // namespace
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS

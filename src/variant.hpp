@@ -5,11 +5,7 @@
 #include <tuple>
 #include <utility>
 
-#ifdef CUTIL_NS
 namespace CUTIL_NS {
-#endif
-
-namespace {
 template <class... Ts>
 class Variant {
   private:
@@ -234,8 +230,4 @@ class Variant {
         reset();
     }
 };
-} // namespace
-
-#ifdef CUTIL_NS
-}
-#endif
+} // namespace CUTIL_NS
