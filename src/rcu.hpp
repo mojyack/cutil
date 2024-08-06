@@ -12,14 +12,14 @@ template <class T>
 struct RCU {
   private:
     struct RCUData {
-        T                    data;
-        std::atomic_uint32_t refcount;
+        T                    data     = {};
+        std::atomic_uint32_t refcount = 0;
 
         // guard for worst case:
         // in emplace(), if refcount==0 check was done between reader's storage slot selection(auto& front = ...) and refcount increment in lock(),
         // that reader may see constructing(incomplete) data.
         // in such a rare case, that reader must wait for the complete flag.
-        std::atomic_uint32_t complete;
+        std::atomic_uint32_t complete = 1;
 
         auto unlock() -> void {
             refcount.fetch_sub(1);
