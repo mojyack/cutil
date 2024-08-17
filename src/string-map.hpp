@@ -4,11 +4,8 @@
 #include <string_view>
 #include <unordered_map>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_string_map_v1
+#include "_prologue.hpp"
 
 namespace internal {
 struct StringHash {
@@ -32,4 +29,5 @@ struct StringHash {
 // .insert() not supported yet(P2363)
 template <class T>
 using StringMap = std::unordered_map<std::string, T, internal::StringHash, std::ranges::equal_to>;
-}
+
+#include "_prologue.hpp"

@@ -3,11 +3,8 @@
 
 #include "critical.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_timer_event_v1
+#include "_prologue.hpp"
 
 class TimerEvent {
   private:
@@ -33,4 +30,5 @@ class TimerEvent {
         condv.notify_all();
     }
 };
-}
+
+#include "_prologue.hpp"

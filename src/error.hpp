@@ -1,11 +1,8 @@
 #pragma once
 #include <string>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_error_v1
+#include "_prologue.hpp"
 
 class StringError {
   private:
@@ -23,4 +20,5 @@ class StringError {
     StringError() = default;
     StringError(std::string_view what) : what(what) {}
 };
-}
+
+#include "_prologue.hpp"

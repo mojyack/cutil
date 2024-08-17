@@ -4,11 +4,8 @@
 
 #include "critical.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_writers_reader_buffer_v1
+#include "_prologue.hpp"
 
 template <class T>
 class WritersReaderBuffer {
@@ -29,4 +26,5 @@ class WritersReaderBuffer {
         return data;
     }
 };
-}
+
+#include "_prologue.hpp"

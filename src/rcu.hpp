@@ -3,11 +3,8 @@
 #include <thread>
 #include <utility>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_rcu_v1
+#include "_prologue.hpp"
 
 template <class T>
 struct RCU {
@@ -78,4 +75,5 @@ struct RCU {
         return {AutoLock{data}, data->data};
     }
 };
-}
+
+#include "_prologue.hpp"

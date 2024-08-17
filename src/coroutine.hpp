@@ -3,11 +3,8 @@
 #include <exception>
 #include <utility>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_coroutine_v1
+#include "_prologue.hpp"
 
 template <class T>
 struct CoGenerator {
@@ -89,4 +86,5 @@ struct CoRoutine {
         return generator.handle.done();
     }
 };
-}
+
+#include "_prologue.hpp"

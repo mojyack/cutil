@@ -1,11 +1,8 @@
 #pragma once
 #include <iostream>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_lock_print_v1
+#include "_prologue.hpp"
 
 inline auto cout_lock = std::mutex();
 
@@ -15,4 +12,5 @@ auto lock_print(Args... args) -> void {
     (std::cout << ... << args) << std::endl;
     cout_lock.unlock();
 }
-}
+
+#include "_prologue.hpp"

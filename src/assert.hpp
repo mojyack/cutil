@@ -1,11 +1,8 @@
 #pragma once
 #include "print.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_assert_v1
+#include "_prologue.hpp"
 
 template <class... Args>
 [[noreturn]] auto panic(Args... args) -> void {
@@ -61,4 +58,5 @@ auto line_assert(const bool cond, const Location location, Args&&... args) -> vo
         line_panic(location, std::forward<Args>(args)...);
     }
 }
-}
+
+#include "_prologue.hpp"

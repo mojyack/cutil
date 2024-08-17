@@ -3,11 +3,8 @@
 
 #include "assert.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_result_v1
+#include "_prologue.hpp"
 
 template <class T, class E>
 class Result {
@@ -45,4 +42,5 @@ class Result {
 
     Result(const E error) : data(error) {}
 };
-}
+
+#include "_prologue.hpp"

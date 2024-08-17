@@ -4,9 +4,8 @@
 
 #ifdef CUTIL_NS
 namespace CUTIL_NS {
-#else
-namespace {
 #endif
+inline namespace cutil_critical_v1 {
 
 template <class T>
 class Critical {
@@ -67,4 +66,8 @@ class Critical {
     Critical(Args&&... args) : data(std::move(args)...) {}
     Critical() {}
 };
+
+} // namespace cutil_critical_v1
+#ifdef CUTIL_NS
 }
+#endif

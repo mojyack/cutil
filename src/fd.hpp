@@ -6,11 +6,8 @@
 
 #include <unistd.h>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_fd_v1
+#include "_prologue.hpp"
 
 class FileDescriptor {
   private:
@@ -111,4 +108,5 @@ class FileDescriptor {
         close();
     }
 };
-}
+
+#include "_prologue.hpp"

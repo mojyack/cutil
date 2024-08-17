@@ -6,7 +6,6 @@ struct Pos {
     int y;
 };
 
-namespace {
 namespace args {
 template <>
 auto from_string<Pos>(const char* str) -> std::optional<Pos> {
@@ -27,7 +26,6 @@ auto to_string<Pos>(const Pos& data) -> std::string {
     return build_string(data.x, ",", data.y);
 }
 } // namespace args
-} // namespace
 
 namespace test {
 auto parse(auto& parser, const char* const str) -> bool {

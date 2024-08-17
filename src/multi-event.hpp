@@ -1,11 +1,8 @@
 #pragma once
 #include "event.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_multi_event_v1
+#include "_prologue.hpp"
 
 // Multiple Waiters / Single Notifier
 class MultiEvent {
@@ -50,4 +47,5 @@ class MultiEvent {
 
     MultiEvent(const MultiEvent&) {}
 };
-}
+
+#include "_prologue.hpp"

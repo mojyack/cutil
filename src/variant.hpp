@@ -5,11 +5,8 @@
 #include <tuple>
 #include <utility>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_variant_v1
+#include "_prologue.hpp"
 
 template <class... Ts>
 class Variant {
@@ -235,4 +232,5 @@ class Variant {
         reset();
     }
 };
-}
+
+#include "_prologue.hpp"

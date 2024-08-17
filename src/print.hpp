@@ -2,11 +2,8 @@
 #include <iostream>
 #include <sstream>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_print_v1
+#include "_prologue.hpp"
 
 template <class... Args>
 auto warn(Args... args) -> void {
@@ -24,4 +21,5 @@ auto build_string(Args... args) -> std::string {
     (ss << ... << args);
     return ss.str();
 }
-}
+
+#include "_prologue.hpp"

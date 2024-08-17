@@ -4,11 +4,8 @@
 
 #include "fd.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_event_fd_v1
+#include "_prologue.hpp"
 
 class EventFileDescriptor {
   private:
@@ -42,4 +39,5 @@ class EventFileDescriptor {
 
     EventFileDescriptor() : fd(eventfd(0, 0)) {}
 };
-}
+
+#include "_prologue.hpp"

@@ -3,11 +3,8 @@
 #include <optional>
 #include <string_view>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_charconv_v1
+#include "_prologue.hpp"
 
 template <std::integral T>
 auto from_chars(const std::string_view str, const int base = 10) -> std::optional<T> {
@@ -28,4 +25,5 @@ auto from_chars(const std::string_view str) -> std::optional<T> {
         return std::nullopt;
     }
 }
-}
+
+#include "_prologue.hpp"

@@ -4,11 +4,8 @@
 
 #include "multi-event.hpp"
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#else
-namespace {
-#endif
+#define CUTIL_MODULE_NAME cutil_string_map_v1
+#include "_prologue.hpp"
 
 template <int N>
 struct ThreadPool {
@@ -49,4 +46,5 @@ struct CustomDataThreadPool : ThreadPool<N> {
         }
     }
 };
-}
+
+#include "_prologue.hpp"
