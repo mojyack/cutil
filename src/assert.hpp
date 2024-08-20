@@ -66,8 +66,8 @@ template <class... Args>
 line_warn(Args&&... args) -> line_warn<Args...>;
 
 template <class... Args>
-struct critical_assert {
-    critical_assert(const bool cond, Args&&... args, const Location location = Location::current()) {
+struct line_assert {
+    line_assert(const bool cond, Args&&... args, const Location location = Location::current()) {
         if(!cond) {
             line_panic<Args...>(std::forward<Args>(args)..., location);
         }
@@ -75,6 +75,6 @@ struct critical_assert {
 };
 
 template <class... Args>
-critical_assert(const bool cond, Args&&... args) -> critical_assert<Args...>;
+line_assert(const bool cond, Args&&... args) -> line_assert<Args...>;
 
 #include "_prologue.hpp"
