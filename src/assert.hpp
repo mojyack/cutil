@@ -1,7 +1,9 @@
 #pragma once
+#include <source_location>
+
 #include "print.hpp"
 
-#define CUTIL_MODULE_NAME cutil_assert_v1
+#define CUTIL_MODULE_NAME cutil_assert_v2
 #include "_prologue.hpp"
 
 template <class... Args>
@@ -25,38 +27,54 @@ auto dynamic_assert(const bool cond, Args... args) -> void {
     }
 }
 
-struct Location {
-    const char* file;
-    const char* function;
-    const int   line;
+using Location = std::source_location;
+
+template <class... Args>
+struct line_panic {
+    line_panic(Args&&... args, const Location location = Location::current()) {
+        const auto message = build_string("fatal error at \"", location.function_name(), "\" at ", location.file_name(), ":", location.line(), " ", std::forward<Args>(args)...);
+#ifdef CUTIL_EXCEPTION
+        throw std::runtime_error(message);
+#else
+        warn(message);
+        exit(1);
+#endif
+    }
 };
 
 template <class... Args>
-[[noreturn]] auto line_panic(const Location location, Args&&... args) -> void {
-    const auto message = build_string("error at \"", location.function, "\" at ", location.file, ":", location.line, " ", std::forward<Args>(args)...);
-#ifdef CUTIL_EXCEPTION
-    throw std::runtime_error(message);
-#else
-    warn(message);
-    exit(1);
-#endif
-}
+line_panic(Args&&... args) -> line_panic<Args...>;
 
 template <class... Args>
-auto line_print(const Location location, Args&&... args) -> void {
-    print("\"", location.function, "\" at ", location.file, ":", location.line, " ", std::forward<Args>(args)...);
-}
-
-template <class... Args>
-auto line_warn(const Location location, Args&&... args) -> void {
-    warn("\"", location.function, "\" at ", location.file, ":", location.line, " ", std::forward<Args>(args)...);
-}
-
-template <class... Args>
-auto line_assert(const bool cond, const Location location, Args&&... args) -> void {
-    if(!cond) {
-        line_panic(location, std::forward<Args>(args)...);
+struct line_print {
+    line_print(Args&&... args, const Location location = Location::current()) {
+        print("\"", location.function_name(), "\" at ", location.file_name(), ":", location.line(), " ", std::forward<Args>(args)...);
     }
-}
+};
+
+template <class... Args>
+line_print(Args&&... args) -> line_print<Args...>;
+
+template <class... Args>
+struct line_warn {
+    line_warn(Args&&... args, const Location location = Location::current()) {
+        warn("\"", location.function_name(), "\" at ", location.file_name(), ":", location.line(), " ", std::forward<Args>(args)...);
+    }
+};
+
+template <class... Args>
+line_warn(Args&&... args) -> line_warn<Args...>;
+
+template <class... Args>
+struct critical_assert {
+    critical_assert(Args&&... args, const bool cond, const Location location = Location::current()) {
+        if(!cond) {
+            line_panic<Args...>(std::forward<Args>(args)..., location);
+        }
+    }
+};
+
+template <class... Args>
+critical_assert(Args&&... args, const bool cond) -> critical_assert<Args...>;
 
 #include "_prologue.hpp"
