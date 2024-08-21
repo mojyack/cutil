@@ -82,6 +82,8 @@ using Keys = std::vector<std::string_view>;
 
 #pragma push_macro("bail")
 #pragma push_macro("assert")
+#undef bail
+#undef assert
 #define bail(...)      \
     warn(__VA_ARGS__); \
     return false;
