@@ -6,7 +6,7 @@
 
 #include <unistd.h>
 
-#define CUTIL_MODULE_NAME cutil_fd_v1
+#define CUTIL_MODULE_NAME cutil_fd_v2
 #include "_prologue.hpp"
 
 class FileDescriptor {
@@ -70,6 +70,7 @@ class FileDescriptor {
     auto close() -> void {
         if(fd != -1) {
             ::close(fd);
+            fd = -1;
         }
     }
 
