@@ -21,9 +21,9 @@ struct RandomEngine {
     template <size_t len>
     auto random_fill_fixed_len(std::byte* const ptr) -> void {
         using T8  = uint8_t;
-        using T16 = std::conditional_t<(len > sizeof(uint16_t)), uint16_t, T8>;
-        using T32 = std::conditional_t<(len > sizeof(uint32_t)), uint32_t, T16>;
-        using T64 = std::conditional_t<(len > sizeof(uint64_t)), uint64_t, T32>;
+        using T16 = std::conditional_t<(len >= sizeof(uint16_t)), uint16_t, T8>;
+        using T32 = std::conditional_t<(len >= sizeof(uint32_t)), uint32_t, T16>;
+        using T64 = std::conditional_t<(len >= sizeof(uint64_t)), uint64_t, T32>;
         using T   = T64;
         static_assert(len % sizeof(T) == 0);
 
