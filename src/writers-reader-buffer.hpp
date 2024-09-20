@@ -4,7 +4,7 @@
 
 #include "critical.hpp"
 
-#define CUTIL_MODULE_NAME cutil_writers_reader_buffer_v1
+#define CUTIL_MODULE_NAME cutil_writers_reader_buffer_v2
 #include "_prologue.hpp"
 
 template <class T>
@@ -15,7 +15,14 @@ class WritersReaderBuffer {
 
   public:
     auto push(T item) -> void {
-        auto [lock, data] = buffer[flip].access();
+    retry:
+        const auto front  = flip.load();
+        auto [lock, data] = buffer[front].access();
+        // reader may swapped buffer while aquireing the buffer lock
+        if(front != flip) {
+            goto retry;
+        }
+
         data.push_back(std::move(item));
     }
 
