@@ -40,131 +40,136 @@ auto parse(auto& parser, const char* const str) -> bool {
     return parser.parse(argv.size(), argv.data());
 }
 
-auto test1() -> void {
-    struct Args {
-        int         pint;
-        int         kint;
-        double      pdouble;
-        double      kdouble;
-        const char* pstr;
-        const char* kstr;
-        bool        pflag;
-        bool        kflag;
-        Pos         ppos;
-        Pos         kpos;
-    };
+auto all_type_test() -> void {
+    auto pint    = int();
+    auto kint    = int();
+    auto pdouble = double();
+    auto kdouble = double();
+    auto pstr    = (const char*)(nullptr);
+    auto kstr    = (const char*)(nullptr);
+    auto pflag   = bool();
+    auto kflag   = bool();
+    auto ppos    = Pos();
+    auto kpos    = Pos();
+
     auto parser = args::Parser<Pos>();
-    auto args   = Args();
-    parser.arg(&args.pint, "INT", "positional interger value");
-    parser.kwarg(&args.kint, {"-n", "--num"}, "INT", "keyword interger value");
-    parser.arg(&args.pdouble, "FLOAT", "positional float value");
-    parser.kwarg(&args.kdouble, {"-f", "--float"}, "FLOAT", "keyword float value");
-    parser.arg(&args.pstr, "STR", "positional string value");
-    parser.kwarg(&args.kstr, {"-s", "--string"}, "STR", "keyword string value");
-    parser.arg(&args.kflag, "BOOL", "positional boolean value");
-    parser.kwarg(&args.kflag, {"-b", "--bool"}, "BOOL", "keyword boolean value");
-    parser.arg(&args.ppos, "X,Y", "positional custom value");
-    parser.kwarg(&args.kpos, {"-p", "--pos"}, "FLOAT", "keyword custom value");
+    parser.arg(&pint, "INT", "positional interger value");
+    parser.kwarg(&kint, {"-n", "--num"}, "INT", "keyword interger value");
+    parser.arg(&pdouble, "FLOAT", "positional float value");
+    parser.kwarg(&kdouble, {"-f", "--float"}, "FLOAT", "keyword float value");
+    parser.arg(&pstr, "STR", "positional string value");
+    parser.kwarg(&kstr, {"-s", "--string"}, "STR", "keyword string value");
+    parser.arg(&pflag, "BOOL", "positional boolean value");
+    parser.kwarg(&kflag, {"-b", "--bool"}, "BOOL", "keyword boolean value");
+    parser.arg(&ppos, "X,Y", "positional custom value");
+    parser.kwarg(&kpos, {"-p", "--pos"}, "FLOAT", "keyword custom value");
     print("usage: test ", parser.get_help());
     print("parse: ", parse(parser, "test -n 2 -f 2.0 -s hello -b true -p 100,200 1 1.0 world false 300,400") ? "ok" : "error");
-    if(args.pint != 1 || args.kint != 2 ||
-       args.pdouble != 1.0 || args.kdouble != 2.0 ||
-       std::string_view(args.kstr) != "hello" || std::string_view(args.pstr) != "world" ||
-       args.pflag != false || args.kflag != true ||
-       args.ppos.x != 300 || args.ppos.y != 400 || args.kpos.x != 100 || args.kpos.y != 200) {
+    if(pint != 1 || kint != 2 ||
+       pdouble != 1.0 || kdouble != 2.0 ||
+       std::string_view(kstr) != "hello" || std::string_view(pstr) != "world" ||
+       pflag != false || kflag != true ||
+       ppos.x != 300 || ppos.y != 400 || kpos.x != 100 || kpos.y != 200) {
         print("args: error");
     } else {
         print("args: ok");
     }
-    print("pint: ", args.pint);
-    print("kint: ", args.kint);
-    print("pdouble: ", args.pdouble);
-    print("kdouble: ", args.kdouble);
-    print("pstr: ", args.pstr);
-    print("kstr: ", args.kstr);
-    print("pflag: ", args.pflag);
-    print("kflag: ", args.kflag);
-    print("ppos: ", args.ppos.x, ",", args.ppos.y);
-    print("kpos: ", args.kpos.x, ",", args.kpos.y);
+    print("pint: ", pint);
+    print("kint: ", kint);
+    print("pdouble: ", pdouble);
+    print("kdouble: ", kdouble);
+    print("pstr: ", pstr);
+    print("kstr: ", kstr);
+    print("pflag: ", pflag);
+    print("kflag: ", kflag);
+    print("ppos: ", ppos.x, ",", ppos.y);
+    print("kpos: ", kpos.x, ",", kpos.y);
 }
 
-auto test2() -> void {
-    struct Args {
-        bool flag;
-        bool invert;
-    };
+auto flag_test() -> void {
+    auto flag   = bool();
+    auto invert = bool();
+
     auto parser = args::Parser<>();
-    auto args   = Args();
-    parser.kwflag(&args.flag, {"-1"}, "normal");
-    parser.kwflag(&args.invert, {"-2"}, "invert", {.invert_flag_value = true});
+    parser.kwflag(&flag, {"-1"}, "normal");
+    parser.kwflag(&invert, {"-2"}, "invert", {.invert_flag_value = true});
     print("usage: test ", parser.get_help());
     print("parse: ", parse(parser, "test -1 -2") ? "ok" : "error");
-    print("args:", args.flag && !args.invert ? "ok" : "error");
+    print("args:", flag && !invert ? "ok" : "error");
 }
 
-auto test3() -> void {
-    struct Args {
-        int num1 = 8086;
-        int num2 = -1;
-    };
-    auto parser = args::Parser<>();
-    auto args   = Args();
-    parser.kwarg(&args.num1, {"-1"}, "INT", "with default value", {.state = args::State::DefaultValue});
-    parser.kwarg(&args.num2, {"-2"}, "INT", "disabled", {.state = args::State::Initialized});
-    print("usage: test ", parser.get_help());
-    print("parse: ", parse(parser, "test -1 8080 -2 1") ? "ok" : "error");
-    print("args:", args.num1 == 8080 && args.num2 == 1 ? "ok" : "error");
+auto state_test() -> void {
+    auto num = 8086;
+    // default value
+    {
+        auto parser = args::Parser<>();
+        parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::DefaultValue});
+        print("usage: test ", parser.get_help());
+        print("parse: ", parse(parser, "test") ? "ok" : "error");
+        print("args:", num == 8086 ? "ok" : "error");
+    }
+    // initialized
+    {
+        auto parser = args::Parser<>();
+        parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::Initialized});
+        print("usage: test ", parser.get_help());
+        print("parse: ", parse(parser, "test") ? "ok" : "error");
+        print("args:", num == 8086 ? "ok" : "error");
+    }
+    // required
+    {
+        auto parser = args::Parser<>();
+        parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::Uninitialized});
+        print("usage: test ", parser.get_help());
+        print("parse: ", !parse(parser, "test") ? "ok" : "error");
+        print("parse: ", parse(parser, "test -n 1") ? "ok" : "error");
+        print("args:", num == 1 ? "ok" : "error");
+    }
 }
 
-auto test4() -> void {
-    struct Args {
-        int8_t  i8;
-        uint8_t u8;
-        ssize_t i64;
-        size_t  u64;
-    };
+auto minus_int_test() -> void {
+    auto i8  = int8_t();
+    auto u8  = uint8_t();
+    auto i64 = ssize_t();
+    auto u64 = size_t();
+
     auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
-    auto args   = Args();
-    parser.arg(&args.i8, "INT", "i8");
-    parser.arg(&args.u8, "INT", "u8");
-    parser.arg(&args.i64, "INT", "i64");
-    parser.arg(&args.u64, "INT", "u64");
+    parser.arg(&i8, "INT", "i8");
+    parser.arg(&u8, "INT", "u8");
+    parser.arg(&i64, "INT", "i64");
+    parser.arg(&u64, "INT", "u64");
     print("usage: test ", parser.get_help());
     print("parse: ", parse(parser, "test -1 2 -3 4") ? "ok" : "error");
-    print("args:", args.i8 == -1 && args.u8 == 2 && args.i64 == -3 && args.u64 == 4 ? "ok" : "error");
+    print("args:", i8 == -1 && u8 == 2 && i64 == -3 && u64 == 4 ? "ok" : "error");
 }
 
-auto test5() -> void {
-    struct Args {
-        int8_t  i8;
-        uint8_t u8;
-    };
+auto out_of_range_test() -> void {
+    auto i8 = int8_t();
+    auto u8 = uint8_t();
+
     auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
-    auto args   = Args();
-    parser.arg(&args.i8, "INT", "i8");
-    parser.arg(&args.u8, "INT", "u8");
+    parser.arg(&i8, "INT", "i8");
+    parser.arg(&u8, "INT", "u8");
     print("parse: ", !parse(parser, "test 1 -2") ? "ok" : "error");
 }
 
-auto test6() -> void {
-    struct Args {
-        bool required;
-        bool help;
-    };
+auto no_error_check_test() -> void {
+    auto required = bool();
+    auto help     = false;
+
     auto parser = args::Parser<>();
-    auto args   = Args();
-    parser.arg(&args.required, "BOOL", "required");
-    parser.kwflag(&args.help, {"-h", "--help"}, "help", {.no_error_check = true});
+    parser.arg(&required, "BOOL", "required");
+    parser.kwflag(&help, {"-h", "--help"}, "help", {.no_error_check = true});
     print("parse: ", parse(parser, "test -h") ? "ok" : "error");
 }
 } // namespace test
 
 auto main() -> int {
-    test::test1();
-    test::test2();
-    test::test3();
-    test::test4();
-    test::test5();
-    test::test6();
+    test::all_type_test();
+    test::flag_test();
+    test::state_test();
+    test::minus_int_test();
+    test::out_of_range_test();
+    test::no_error_check_test();
     return 0;
 }
