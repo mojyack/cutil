@@ -70,12 +70,10 @@ enum class State {
     DefaultValue,
 };
 
-struct ArgumentSpec {
-    std::string_view value_desc        = "";
-    std::string_view arg_desc          = "";
-    State            state             = State::Uninitialized;
-    bool             invert_flag_value = false;
-    bool             no_error_check    = false;
+struct ArgumentOpts {
+    State state             = State::Uninitialized;
+    bool  invert_flag_value = false;
+    bool  no_error_check    = false;
 };
 
 using Keys = std::vector<std::string_view>;
@@ -113,31 +111,43 @@ class GenericParser {
     }
 
     struct Argument {
-        Pair         pair;
-        ArgumentSpec spec;
-        bool         found = false;
+        Pair             pair;
+        std::string_view value_desc;
+        std::string_view arg_desc;
+        ArgumentOpts     opts;
+        bool             found = false;
     };
+
     std::vector<std::pair<Keys, Argument>> keyword_args;
     std::vector<Argument>                  args;
 
   public:
     template <class T>
-    auto arg(T* data, ArgumentSpec spec) -> void {
+    auto arg(T* data, const std::string_view value_desc, const std::string_view arg_desc, const ArgumentOpts opts = {}) -> void {
         args.push_back({
-            .pair = Pair::template create<PtrInitPair<T>>(data, *data),
-            .spec = spec,
+            .pair       = Pair::template create<PtrInitPair<T>>(data, *data),
+            .value_desc = value_desc,
+            .arg_desc   = arg_desc,
+            .opts       = opts,
         });
     }
 
     template <class T>
-    auto kwarg(T* data, Keys keys, ArgumentSpec spec) -> void {
+    auto kwarg(T* data, Keys keys, const std::string_view value_desc, const std::string_view arg_desc, const ArgumentOpts opts = {}) -> void {
         keyword_args.push_back({
             std::move(keys),
             {
-                .pair = Pair::template create<PtrInitPair<T>>(data, *data),
-                .spec = spec,
+                .pair       = Pair::template create<PtrInitPair<T>>(data, *data),
+                .value_desc = value_desc,
+                .arg_desc   = arg_desc,
+                .opts       = opts,
             },
         });
+    }
+
+    auto kwflag(bool* data, Keys keys, const std::string_view arg_desc, ArgumentOpts opts = {}) -> void {
+        opts.state = State::Initialized;
+        kwarg<bool>(data, keys, {}, arg_desc, opts);
     }
 
     auto get_help() const -> std::string {
@@ -146,7 +156,11 @@ class GenericParser {
             ret += "(options)... ";
         }
         for(const auto& entry : args) {
-            ret += entry.spec.value_desc;
+            ret += entry.value_desc;
+            ret += " ";
+        }
+        for(const auto& entry : args) {
+            ret += entry.value_desc;
             ret += " ";
         }
         ret += "\noptions:\n";
@@ -161,7 +175,7 @@ class GenericParser {
             }
             line.back() = ' ';
             if(entry.pair.get_index() != index_of<bool>) {
-                line += entry.spec.value_desc;
+                line += entry.value_desc;
                 line += " ";
             }
             maxlen = std::max(maxlen, line.size());
@@ -171,11 +185,11 @@ class GenericParser {
             const auto& line  = lines[i];
             ret += line;
             ret += std::string(maxlen - line.size() + 2, ' ');
-            if(entry.spec.state == State::Uninitialized) {
+            if(entry.opts.state == State::Uninitialized) {
                 ret += "required: ";
             }
-            ret += entry.spec.arg_desc;
-            if(entry.spec.state == State::DefaultValue) {
+            ret += entry.arg_desc;
+            if(entry.opts.state == State::DefaultValue) {
                 ret += "(default=";
                 ret += entry.pair.apply([](auto& pair) { return to_string(pair.init); }).value();
                 ret += ")";
@@ -211,7 +225,7 @@ class GenericParser {
             }
             switch(entry.pair.get_index()) {
             case index_of<bool>:
-                *as_pair<bool>(entry.pair).ptr = entry.spec.invert_flag_value ? false : true;
+                *as_pair<bool>(entry.pair).ptr = entry.opts.invert_flag_value ? false : true;
                 break;
             default:
                 index += 1;
@@ -220,7 +234,7 @@ class GenericParser {
                 break;
             }
             entry.found = true;
-            skip_error_check |= entry.spec.no_error_check;
+            skip_error_check |= entry.opts.no_error_check;
             goto next;
         }
 
@@ -249,10 +263,10 @@ class GenericParser {
             return true;
         }
         for(auto& [keys, entry] : keyword_args) {
-            assert(entry.found || entry.spec.state != State::Uninitialized, "required argument ", keys[0], " is missing");
+            assert(entry.found || entry.opts.state != State::Uninitialized, "required argument ", keys[0], " is missing");
         }
         for(auto& entry : args) {
-            assert(entry.found || entry.spec.state != State::Uninitialized, "required positional argument is missing");
+            assert(entry.found || entry.opts.state != State::Uninitialized, "required positional argument is missing");
         }
 
         return true;

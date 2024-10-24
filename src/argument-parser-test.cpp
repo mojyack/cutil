@@ -55,15 +55,15 @@ auto test1() -> void {
     };
     auto parser = args::Parser<Pos>();
     auto args   = Args();
-    parser.arg(&args.pint, {.value_desc = "INT", .arg_desc = "positional interger value"});
-    parser.kwarg(&args.kint, {"-n", "--num"}, {.value_desc = "INT", .arg_desc = "positional interger value"});
-    parser.arg(&args.pdouble, {.value_desc = "FLOAT", .arg_desc = "positional float value"});
-    parser.kwarg(&args.kdouble, {"-f", "--float"}, {.value_desc = "FLOAT", .arg_desc = "positional float value"});
-    parser.arg(&args.pstr, {.value_desc = "STR", .arg_desc = "positional string value"});
-    parser.kwarg(&args.kstr, {"-s", "--string"}, {.value_desc = "STR", .arg_desc = "positional string value"});
-    parser.kwarg(&args.kflag, {"-b", "--bool"}, {.value_desc = "FLAG", .arg_desc = "positional boolean value"});
-    parser.arg(&args.ppos, {.value_desc = "X,Y", .arg_desc = "custom value type"});
-    parser.kwarg(&args.kpos, {"-p", "--pos"}, {.value_desc = "FLOAT", .arg_desc = "custom value type"});
+    parser.arg(&args.pint, "INT", "positional interger value");
+    parser.kwarg(&args.kint, {"-n", "--num"}, "INT", "positional interger value");
+    parser.arg(&args.pdouble, "FLOAT", "positional float value");
+    parser.kwarg(&args.kdouble, {"-f", "--float"}, "FLOAT", "positional float value");
+    parser.arg(&args.pstr, "STR", "positional string value");
+    parser.kwarg(&args.kstr, {"-s", "--string"}, "STR", "positional string value");
+    parser.kwflag(&args.kflag, {"-b", "--bool"}, "positional boolean value");
+    parser.arg(&args.ppos, "X,Y", "custom value type");
+    parser.kwarg(&args.kpos, {"-p", "--pos"}, "FLOAT", "custom value type");
     print("usage: test ", parser.get_help());
     print("parse: ", parse(parser, "test -n 2 -f 2.0 -s hello -b 1 -p 100,200 1.0 world 300,400") ? "ok" : "error");
     if(args.pint != 1 || args.kint != 2 ||
@@ -94,8 +94,8 @@ auto test2() -> void {
     };
     auto parser = args::Parser<>();
     auto args   = Args();
-    parser.kwarg(&args.flag, {"-1"}, {.arg_desc = "normal"});
-    parser.kwarg(&args.invert, {"-2"}, {.arg_desc = "invert", .invert_flag_value = true});
+    parser.kwflag(&args.flag, {"-1"}, "normal");
+    parser.kwflag(&args.invert, {"-2"}, "invert", {.invert_flag_value = true});
     print("usage: test ", parser.get_help());
     print("parse: ", parse(parser, "test -1 -2") ? "ok" : "error");
     print("args:", args.flag && !args.invert ? "ok" : "error");
@@ -108,8 +108,8 @@ auto test3() -> void {
     };
     auto parser = args::Parser<>();
     auto args   = Args();
-    parser.kwarg(&args.num1, {"-1"}, {.value_desc = "INT", .arg_desc = "with default value", .state = args::State::DefaultValue});
-    parser.kwarg(&args.num2, {"-2"}, {.value_desc = "INT", .arg_desc = "disabled", .state = args::State::Initialized});
+    parser.kwarg(&args.num1, {"-1"}, "INT", "with default value", {.state = args::State::DefaultValue});
+    parser.kwarg(&args.num2, {"-2"}, "INT", "disabled", {.state = args::State::Initialized});
     print("usage: test ", parser.get_help());
     print("parse: ", parse(parser, "test -1 8080 -2 1") ? "ok" : "error");
     print("args:", args.num1 == 8080 && args.num2 == 1 ? "ok" : "error");
@@ -124,10 +124,10 @@ auto test4() -> void {
     };
     auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
     auto args   = Args();
-    parser.arg(&args.i8, {.value_desc = "INT", .arg_desc = "i8"});
-    parser.arg(&args.u8, {.value_desc = "INT", .arg_desc = "u8"});
-    parser.arg(&args.i64, {.value_desc = "INT", .arg_desc = "i64"});
-    parser.arg(&args.u64, {.value_desc = "INT", .arg_desc = "u64"});
+    parser.arg(&args.i8, "INT", "i8");
+    parser.arg(&args.u8, "INT", "u8");
+    parser.arg(&args.i64, "INT", "i64");
+    parser.arg(&args.u64, "INT", "u64");
     print("usage: test ", parser.get_help());
     print("parse: ", parse(parser, "test -1 2 -3 4") ? "ok" : "error");
     print("args:", args.i8 == -1 && args.u8 == 2 && args.i64 == -3 && args.u64 == 4 ? "ok" : "error");
@@ -140,8 +140,8 @@ auto test5() -> void {
     };
     auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
     auto args   = Args();
-    parser.arg(&args.i8, {.value_desc = "INT", .arg_desc = "i8"});
-    parser.arg(&args.u8, {.value_desc = "INT", .arg_desc = "u8"});
+    parser.arg(&args.i8, "INT", "i8");
+    parser.arg(&args.u8, "INT", "u8");
     print("parse: ", !parse(parser, "test 1 -2") ? "ok" : "error");
 }
 
@@ -152,8 +152,8 @@ auto test6() -> void {
     };
     auto parser = args::Parser<>();
     auto args   = Args();
-    parser.arg(&args.required, {.arg_desc = "required"});
-    parser.kwarg(&args.help, {"-h", "--help"}, {.arg_desc = "help", .no_error_check = true});
+    parser.arg(&args.required, "BOOL", "required");
+    parser.kwflag(&args.help, {"-h", "--help"}, "help", {.no_error_check = true});
     print("parse: ", parse(parser, "test -h") ? "ok" : "error");
 }
 } // namespace test
