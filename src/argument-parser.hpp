@@ -155,46 +155,58 @@ class GenericParser {
         if(!keyword_args.empty()) {
             ret += "(options)... ";
         }
-        for(const auto& entry : args) {
-            ret += entry.value_desc;
-            ret += " ";
-        }
-        for(const auto& entry : args) {
-            ret += entry.value_desc;
-            ret += " ";
-        }
-        ret += "\noptions:\n";
-        auto maxlen = size_t(0);
-        auto lines  = std::vector<std::string>();
-        for(const auto& [keys, entry] : keyword_args) {
-            auto& line = lines.emplace_back();
-            line += "  ";
-            for(const auto key : keys) {
-                line += key;
-                line += ",";
-            }
-            line.back() = ' ';
-            if(entry.pair.get_index() != index_of<bool>) {
-                line += entry.value_desc;
-                line += " ";
-            }
-            maxlen = std::max(maxlen, line.size());
-        }
-        for(auto i = 0u; i < keyword_args.size(); i += 1) {
-            const auto& entry = keyword_args[i].second;
-            const auto& line  = lines[i];
-            ret += line;
-            ret += std::string(maxlen - line.size() + 2, ' ');
-            if(entry.opts.state == State::Uninitialized) {
-                ret += "required: ";
-            }
-            ret += entry.arg_desc;
-            if(entry.opts.state == State::DefaultValue) {
-                ret += "(default=";
-                ret += entry.pair.apply([](auto& pair) { return to_string(pair.init); }).value();
-                ret += ")";
+        if(!args.empty()) {
+            for(const auto& entry : args) {
+                ret += entry.value_desc;
+                ret += " ";
             }
             ret += "\n";
+            auto maxlen = size_t(0);
+            for(const auto& entry : args) {
+                maxlen = std::max(maxlen, entry.value_desc.size());
+            }
+            for(const auto& entry : args) {
+                ret += "  ";
+                ret += entry.value_desc;
+                ret += std::string(maxlen - entry.value_desc.size() + 3, ' ');
+                ret += entry.arg_desc;
+                ret += "\n";
+            }
+        }
+        if(!keyword_args.empty()) {
+            ret += "\noptions:\n";
+            auto maxlen = size_t(0);
+            auto lines  = std::vector<std::string>();
+            for(const auto& [keys, entry] : keyword_args) {
+                auto& line = lines.emplace_back();
+                line += "  ";
+                for(const auto key : keys) {
+                    line += key;
+                    line += ",";
+                }
+                line.back() = ' ';
+                if(entry.pair.get_index() != index_of<bool>) {
+                    line += entry.value_desc;
+                    line += " ";
+                }
+                maxlen = std::max(maxlen, line.size());
+            }
+            for(auto i = 0u; i < keyword_args.size(); i += 1) {
+                const auto& entry = keyword_args[i].second;
+                const auto& line  = lines[i];
+                ret += line;
+                ret += std::string(maxlen - line.size() + 2, ' ');
+                if(entry.opts.state == State::Uninitialized) {
+                    ret += "required: ";
+                }
+                ret += entry.arg_desc;
+                if(entry.opts.state == State::DefaultValue) {
+                    ret += "(default=";
+                    ret += entry.pair.apply([](auto& pair) { return to_string(pair.init); }).value();
+                    ret += ")";
+                }
+                ret += "\n";
+            }
         }
         return ret;
     }
