@@ -56,20 +56,21 @@ auto test1() -> void {
     auto parser = args::Parser<Pos>();
     auto args   = Args();
     parser.arg(&args.pint, "INT", "positional interger value");
-    parser.kwarg(&args.kint, {"-n", "--num"}, "INT", "positional interger value");
+    parser.kwarg(&args.kint, {"-n", "--num"}, "INT", "keyword interger value");
     parser.arg(&args.pdouble, "FLOAT", "positional float value");
-    parser.kwarg(&args.kdouble, {"-f", "--float"}, "FLOAT", "positional float value");
+    parser.kwarg(&args.kdouble, {"-f", "--float"}, "FLOAT", "keyword float value");
     parser.arg(&args.pstr, "STR", "positional string value");
-    parser.kwarg(&args.kstr, {"-s", "--string"}, "STR", "positional string value");
-    parser.kwflag(&args.kflag, {"-b", "--bool"}, "positional boolean value");
-    parser.arg(&args.ppos, "X,Y", "custom value type");
-    parser.kwarg(&args.kpos, {"-p", "--pos"}, "FLOAT", "custom value type");
+    parser.kwarg(&args.kstr, {"-s", "--string"}, "STR", "keyword string value");
+    parser.arg(&args.kflag, "BOOL", "positional boolean value");
+    parser.kwarg(&args.kflag, {"-b", "--bool"}, "BOOL", "keyword boolean value");
+    parser.arg(&args.ppos, "X,Y", "positional custom value");
+    parser.kwarg(&args.kpos, {"-p", "--pos"}, "FLOAT", "keyword custom value");
     print("usage: test ", parser.get_help());
-    print("parse: ", parse(parser, "test -n 2 -f 2.0 -s hello -b 1 -p 100,200 1.0 world 300,400") ? "ok" : "error");
+    print("parse: ", parse(parser, "test -n 2 -f 2.0 -s hello -b true -p 100,200 1 1.0 world false 300,400") ? "ok" : "error");
     if(args.pint != 1 || args.kint != 2 ||
        args.pdouble != 1.0 || args.kdouble != 2.0 ||
        std::string_view(args.kstr) != "hello" || std::string_view(args.pstr) != "world" ||
-       args.kflag != true ||
+       args.pflag != false || args.kflag != true ||
        args.ppos.x != 300 || args.ppos.y != 400 || args.kpos.x != 100 || args.kpos.y != 200) {
         print("args: error");
     } else {
@@ -81,7 +82,7 @@ auto test1() -> void {
     print("kdouble: ", args.kdouble);
     print("pstr: ", args.pstr);
     print("kstr: ", args.kstr);
-    // print("pflag: ", args.pflag);
+    print("pflag: ", args.pflag);
     print("kflag: ", args.kflag);
     print("ppos: ", args.ppos.x, ",", args.ppos.y);
     print("kpos: ", args.kpos.x, ",", args.kpos.y);

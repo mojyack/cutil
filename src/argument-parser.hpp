@@ -17,8 +17,14 @@ template <class T>
 inline auto from_string(CStr str) -> std::optional<T>;
 
 template <>
-inline auto from_string<bool>(CStr) -> std::optional<bool> {
-    return std::nullopt;
+inline auto from_string<bool>(CStr str) -> std::optional<bool> {
+    if(const auto view = std::string_view(str); view == "true") {
+        return true;
+    } else if(view == "false") {
+        return false;
+    } else {
+        return std::nullopt;
+    }
 }
 
 template <class T>
@@ -44,8 +50,8 @@ template <class T>
 auto to_string(const T& data) -> std::string;
 
 template <>
-inline auto to_string<bool>(const bool&) -> std::string {
-    return "";
+inline auto to_string<bool>(const bool& data) -> std::string {
+    return data ? "true" : "false";
 }
 
 template <class T>
@@ -115,6 +121,7 @@ class GenericParser {
         std::string_view value_desc;
         std::string_view arg_desc;
         ArgumentOpts     opts;
+        bool             flag  = false;
         bool             found = false;
     };
 
@@ -147,7 +154,16 @@ class GenericParser {
 
     auto kwflag(bool* data, Keys keys, const std::string_view arg_desc, ArgumentOpts opts = {}) -> void {
         opts.state = State::Initialized;
-        kwarg<bool>(data, keys, {}, arg_desc, opts);
+        keyword_args.push_back({
+            std::move(keys),
+            {
+                .pair       = Pair::template create<PtrInitPair<bool>>(data, *data),
+                .value_desc = {},
+                .arg_desc   = arg_desc,
+                .opts       = opts,
+                .flag       = true,
+            },
+        });
     }
 
     auto get_help() const -> std::string {
@@ -185,7 +201,7 @@ class GenericParser {
                     line += ",";
                 }
                 line.back() = ' ';
-                if(entry.pair.get_index() != index_of<bool>) {
+                if(!entry.flag) {
                     line += entry.value_desc;
                     line += " ";
                 }
@@ -235,15 +251,13 @@ class GenericParser {
             if(entry.found || std::ranges::find(keys, argv[index]) == keys.end()) {
                 continue;
             }
-            switch(entry.pair.get_index()) {
-            case index_of<bool>:
+            if(entry.flag) {
+                assert(entry.pair.get_index() == index_of<bool>, "bug index=", entry.pair.get_index());
                 *as_pair<bool>(entry.pair).ptr = entry.opts.invert_flag_value ? false : true;
-                break;
-            default:
+            } else {
                 index += 1;
                 assert(index < argc, "no following argument to ", keys[0]);
                 assert(parse_data(entry, argv[index]));
-                break;
             }
             entry.found = true;
             skip_error_check |= entry.opts.no_error_check;
@@ -254,13 +268,7 @@ class GenericParser {
             if(entry.found) {
                 continue;
             }
-            switch(entry.pair.get_index()) {
-            case index_of<bool>:
-                bail("flag cannot be a positional argument");
-            default:
-                assert(parse_data(entry, argv[index]));
-                break;
-            }
+            assert(parse_data(entry, argv[index]));
             entry.found = true;
             goto next;
         }
