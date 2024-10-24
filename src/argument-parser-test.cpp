@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include "argument-parser.hpp"
 #include "split.hpp"
 

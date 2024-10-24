@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <cstddef>
 
 #define CUTIL_MODULE_NAME cutil_pair_table_v1
 #include "_prologue.hpp"
