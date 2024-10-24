@@ -6,7 +6,7 @@
 #include "print.hpp"
 #include "variant.hpp"
 
-#define CUTIL_MODULE_NAME cutil_argument_parser_v1
+#define CUTIL_MODULE_NAME cutil_argument_parser_v2
 #include "_prologue.hpp"
 
 namespace args {
@@ -94,12 +94,26 @@ using Keys = std::vector<std::string_view>;
     }
 
 template <class... Ts>
-class Parser {
+class GenericParser {
   private:
-    using DataPtr = Variant<bool*, int*, double*, CStr*, Ts*...>;
+    template <class T>
+    struct PtrInitPair {
+        T* ptr;
+        T  init;
+    };
+
+    using Pair = Variant<PtrInitPair<Ts>...>;
+
+    template <class T>
+    constexpr static size_t index_of = Pair::template index_of<PtrInitPair<T>>;
+
+    template <class T>
+    auto as_pair(Pair& pair) -> PtrInitPair<T>& {
+        return pair.template as<PtrInitPair<T>>();
+    }
 
     struct Argument {
-        DataPtr      data;
+        Pair         pair;
         ArgumentSpec spec;
         bool         found = false;
     };
@@ -109,12 +123,21 @@ class Parser {
   public:
     template <class T>
     auto arg(T* data, ArgumentSpec spec) -> void {
-        args.push_back({DataPtr::template create<T*>(data), spec});
+        args.push_back({
+            .pair = Pair::template create<PtrInitPair<T>>(data, *data),
+            .spec = spec,
+        });
     }
 
     template <class T>
     auto kwarg(T* data, Keys keys, ArgumentSpec spec) -> void {
-        keyword_args.push_back({std::move(keys), {DataPtr::template create<T*>(data), spec}});
+        keyword_args.push_back({
+            std::move(keys),
+            {
+                .pair = Pair::template create<PtrInitPair<T>>(data, *data),
+                .spec = spec,
+            },
+        });
     }
 
     auto get_help() const -> std::string {
@@ -137,7 +160,7 @@ class Parser {
                 line += ",";
             }
             line.back() = ' ';
-            if(entry.data.get_index() != DataPtr::template index_of<bool*>) {
+            if(entry.pair.get_index() != index_of<bool>) {
                 line += entry.spec.value_desc;
                 line += " ";
             }
@@ -154,7 +177,7 @@ class Parser {
             ret += entry.spec.arg_desc;
             if(entry.spec.state == State::DefaultValue) {
                 ret += "(default=";
-                ret += entry.data.apply([](auto& ptr) { return to_string(*ptr); }).value();
+                ret += entry.pair.apply([](auto& pair) { return to_string(pair.init); }).value();
                 ret += ")";
             }
             ret += "\n";
@@ -164,12 +187,12 @@ class Parser {
 
     auto parse(const int argc, const char* const* const argv) -> bool {
         auto parse_data = [](Argument& entry, CStr str) -> bool {
-            const auto ret = entry.data.apply([str, &entry](auto& ptr) {
-                using T = std::remove_pointer_t<std::remove_cvref_t<decltype(ptr)>>;
+            const auto ret = entry.pair.apply([str](auto& pair) {
+                using T = decltype(pair.init);
 
                 auto value = from_string<T>(str);
                 assert(value, "failed to parse argument ", str);
-                *entry.data.template as<T*>() = *value;
+                *pair.ptr = *value;
                 return true;
             });
             return ret && *ret;
@@ -186,9 +209,9 @@ class Parser {
             if(entry.found || std::ranges::find(keys, argv[index]) == keys.end()) {
                 continue;
             }
-            switch(entry.data.get_index()) {
-            case DataPtr::template index_of<bool*>:
-                *entry.data.template as<bool*>() = entry.spec.invert_flag_value ? false : true;
+            switch(entry.pair.get_index()) {
+            case index_of<bool>:
+                *as_pair<bool>(entry.pair).ptr = entry.spec.invert_flag_value ? false : true;
                 break;
             default:
                 index += 1;
@@ -205,8 +228,8 @@ class Parser {
             if(entry.found) {
                 continue;
             }
-            switch(entry.data.get_index()) {
-            case DataPtr::template index_of<bool*>:
+            switch(entry.pair.get_index()) {
+            case index_of<bool>:
                 bail("flag cannot be a positional argument");
             default:
                 assert(parse_data(entry, argv[index]));
@@ -235,6 +258,9 @@ class Parser {
         return true;
     }
 };
+
+template <class... Ts>
+using Parser = GenericParser<bool, int, double, CStr, Ts...>;
 
 #pragma pop_macro("assert")
 #pragma pop_macro("bail")

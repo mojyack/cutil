@@ -92,7 +92,7 @@ auto test2() -> void {
         bool flag;
         bool invert;
     };
-    auto parser = args::Parser();
+    auto parser = args::Parser<>();
     auto args   = Args();
     parser.kwarg(&args.flag, {"-1"}, {.arg_desc = "normal"});
     parser.kwarg(&args.invert, {"-2"}, {.arg_desc = "invert", .invert_flag_value = true});
@@ -106,7 +106,7 @@ auto test3() -> void {
         int num1 = 8086;
         int num2 = -1;
     };
-    auto parser = args::Parser();
+    auto parser = args::Parser<>();
     auto args   = Args();
     parser.kwarg(&args.num1, {"-1"}, {.value_desc = "INT", .arg_desc = "with default value", .state = args::State::DefaultValue});
     parser.kwarg(&args.num2, {"-2"}, {.value_desc = "INT", .arg_desc = "disabled", .state = args::State::Initialized});
@@ -150,7 +150,7 @@ auto test6() -> void {
         bool required;
         bool help;
     };
-    auto parser = args::Parser();
+    auto parser = args::Parser<>();
     auto args   = Args();
     parser.arg(&args.required, {.arg_desc = "required"});
     parser.kwarg(&args.help, {"-h", "--help"}, {.arg_desc = "help", .no_error_check = true});
