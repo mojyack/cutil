@@ -1,10 +1,65 @@
 #pragma once
 #include <source_location>
+#include <string>
 
 #include "print.hpp"
 
-#define CUTIL_MODULE_NAME cutil_assert_v2
+#define CUTIL_MODULE_NAME cutil_assert_v3
 #include "_prologue.hpp"
+
+namespace impl {
+inline auto remove_prefix(std::string& str, const std::string_view prefix) -> void {
+    if(str.starts_with(prefix)) {
+        str = str.substr(prefix.size());
+    }
+}
+
+// a::b::c::d -> c::d
+inline auto remove_prefix_before_second_delim(std::string& str, const std::string_view dlm) -> void {
+    const auto p1 = str.rfind(dlm);
+    if(p1 == str.npos) return;
+    const auto p2 = str.rfind(dlm, p1 - 1);
+    if(p2 == str.npos) return;
+    str = str.substr(p2 + dlm.size());
+}
+
+inline auto remove_suffix(std::string& str, const std::string_view suffix) -> void {
+    if(str.ends_with(suffix)) {
+        str.resize(str.size() - suffix.size());
+    }
+}
+
+inline auto remove_suffix_pair(std::string& str, const char open, const char close) -> void {
+    if(str.back() != close) return;
+    const auto p = str.rfind(open);
+    if(p == str.npos) return;
+    str.resize(p);
+}
+
+// ugly compiler-dependent hack
+inline auto format_function_name(std::string name) -> std::string {
+    remove_prefix(name, "static ");
+    remove_prefix(name, "virtual ");
+
+    remove_suffix_pair(name, '[', ']'); // template parameters
+    remove_suffix(name, " ");
+    remove_suffix(name, " const");
+    remove_suffix_pair(name, '(', ')'); // argument list
+
+    // remove return type
+    if(const auto p = name.find(' '); p != name.npos) {
+        name = name.substr(p + 1);
+    }
+
+    remove_prefix_before_second_delim(name, "::"); // remove deep namespace
+    return name;
+}
+
+inline auto format_file_name(std::string name) -> std::string {
+    remove_prefix_before_second_delim(name, "/");
+    return name;
+}
+} // namespace impl
 
 template <class... Args>
 [[noreturn]] auto panic(Args... args) -> void {
@@ -48,7 +103,10 @@ line_panic(Args&&... args) -> line_panic<Args...>;
 template <class... Args>
 struct line_print {
     line_print(Args&&... args, const Location location = Location::current()) {
-        print("\"", location.function_name(), "\" at ", location.file_name(), ":", location.line(), " ", std::forward<Args>(args)...);
+        print(impl::format_function_name(location.function_name()), " @ ",
+              impl::format_file_name(location.file_name()), ":",
+              location.line(), " ",
+              std::forward<Args>(args)...);
     }
 };
 
@@ -58,7 +116,10 @@ line_print(Args&&... args) -> line_print<Args...>;
 template <class... Args>
 struct line_warn {
     line_warn(Args&&... args, const Location location = Location::current()) {
-        warn("\"", location.function_name(), "\" at ", location.file_name(), ":", location.line(), " ", std::forward<Args>(args)...);
+        warn(impl::format_function_name(location.function_name()), " @ ",
+             impl::format_file_name(location.file_name()), ":",
+             location.line(), " ",
+             std::forward<Args>(args)...);
     }
 };
 
