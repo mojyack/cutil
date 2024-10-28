@@ -13,6 +13,11 @@ auto t() -> void {
     line_print("template func");
 }
 
+auto s() -> std::optional<std::optional<const int>> {
+    line_print("space in return type");
+    return {};
+}
+
 struct S {
     static auto s() -> void {
         line_print("struct static");
@@ -60,6 +65,7 @@ auto main() -> int {
     f();
     a(0);
     t<int, std::basic_string<char>>();
+    s();
     {
         auto s = S();
         s.f();

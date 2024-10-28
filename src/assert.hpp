@@ -47,8 +47,15 @@ inline auto format_function_name(std::string name) -> std::string {
     remove_suffix_pair(name, '(', ')'); // argument list
 
     // remove return type
-    if(const auto p = name.find(' '); p != name.npos) {
-        name = name.substr(p + 1);
+    for(auto i = 0, depth = 0; i < int(name.size()); i += 1) {
+        if(name[i] == '<') {
+            depth += 1;
+        } else if(name[i] == '>') {
+            depth -= 1;
+        } else if(name[i] == ' ' && depth == 0) {
+            name = name.substr(i + 1);
+            break;
+        }
     }
 
     remove_prefix_before_second_delim(name, "::"); // remove deep namespace
