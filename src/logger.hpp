@@ -1,7 +1,6 @@
 #pragma once
 #include <chrono>
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <iomanip>
 #include <mutex>
@@ -10,7 +9,7 @@
 
 #include "assert.hpp"
 
-#define CUTIL_MODULE_NAME cutil_logger_v1
+#define CUTIL_MODULE_NAME cutil_logger_v2
 #include "_prologue.hpp"
 
 enum class Loglevel : uint8_t {
@@ -28,23 +27,23 @@ struct Logger {
     std::string name;
     Loglevel    loglevel = Loglevel::Info;
 
-    struct FormatString {
-        const char*          format;
+    struct FirstArgument {
+        const char*          value;
         std::source_location location;
 
-        FormatString(const char* format, std::source_location location = std::source_location::current())
-            : format(format),
+        FirstArgument(const char* value, std::source_location location = std::source_location::current())
+            : value(value),
               location(location) {}
     };
 
     template <Loglevel loglevel, class... Args>
-    auto print(FormatString format_string, Args... args) -> void;
+    auto print(FirstArgument format_string, const Args&... args) -> void;
 
 #pragma push_macro("print_alias")
-#define print_alias(name, level)                                            \
-    template <class... Args>                                                \
-    auto name(FormatString format_string, Args... args) -> void {           \
-        print<Loglevel::level, Args...>(std::move(format_string), args...); \
+#define print_alias(name, level)                                  \
+    template <class... Args>                                      \
+    auto name(FirstArgument arg, const Args&... args) -> void {   \
+        print<Loglevel::level, Args...>(std::move(arg), args...); \
     }
 
     print_alias(error, Error);
@@ -78,7 +77,7 @@ inline auto string_to_loglevel(const std::string_view str) -> std::optional<Logl
 }
 
 template <Loglevel loglevel, class... Args>
-inline auto Logger::print(FormatString format_string, Args... args) -> void {
+inline auto Logger::print(FirstArgument format_string, const Args&... args) -> void {
     if(int(this->loglevel) < int(loglevel)) {
         return;
     }
@@ -110,30 +109,19 @@ inline auto Logger::print(FormatString format_string, Args... args) -> void {
     const auto line  = format_string.location.line();
 
     // min:sec:msec [name] LEVEL func @ file.cpp:line: arguments...
-    auto format = build_string(
+    auto string = build_string(
         time_str, " ",                                     // time
         "[", name, "] ",                                   // name
         colors[level],                                     // color on
         loglevel_str[level], " ",                          // level
         func, " @ ", file, ":", std::to_string(line), " ", // location
-        format_string.format,                              // user
+        format_string.value, args...,                      // user
         "\x1B[0m"                                          // color off
     );
 
-    auto buf = std::string();
-    if constexpr(sizeof...(Args) == 0) {
-        buf = std::move(format);
-    } else {
-        // build buffer before locking stream
-        const auto size = std::snprintf(NULL, 0, format.data(), args...);
-        buf.resize(size);
-        const auto end = std::snprintf(buf.data(), buf.size() + 1, format.data(), args...);
-        buf[end]       = '\0';
-    }
-
     // print output
     stream_lock.lock();
-    std::puts(buf.data());
+    (level <= int(Loglevel::Warn) ? std::cerr : std::cout) << string << std::endl;
     stream_lock.unlock();
 }
 
