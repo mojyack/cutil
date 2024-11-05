@@ -28,7 +28,7 @@ inline auto string_to_loglevel(const std::string_view str) -> std::optional<Logl
 }
 
 template <Loglevel loglevel, class... Args>
-inline auto Logger::print(FirstArgument format_string, const Args&... args) -> void {
+inline auto Logger::print(FirstArgument format_string, const Args&... args) const -> void {
     if(int(this->loglevel) < int(loglevel)) {
         return;
     }

@@ -30,13 +30,13 @@ struct Logger {
     };
 
     template <Loglevel loglevel, class... Args>
-    auto print(FirstArgument format_string, const Args&... args) -> void;
+    auto print(FirstArgument format_string, const Args&... args) const -> void;
 
 #pragma push_macro("print_alias")
-#define print_alias(name, level)                                  \
-    template <class... Args>                                      \
-    auto name(FirstArgument arg, const Args&... args) -> void {   \
-        print<Loglevel::level, Args...>(std::move(arg), args...); \
+#define print_alias(name, level)                                      \
+    template <class... Args>                                          \
+    auto name(FirstArgument arg, const Args&... args) const -> void { \
+        print<Loglevel::level, Args...>(std::move(arg), args...);     \
     }
 
     print_alias(error, Error);
