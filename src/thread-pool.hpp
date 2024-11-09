@@ -4,7 +4,7 @@
 
 #include "multi-event.hpp"
 
-#define CUTIL_MODULE_NAME cutil_string_map_v1
+#define CUTIL_MODULE_NAME cutil_thread_pool_v1
 #include "_prologue.hpp"
 
 template <int N>
