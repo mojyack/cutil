@@ -80,7 +80,7 @@ inline auto Logger::set_name_and_detect_loglevel(std::string name) -> void {
     this->name = name;
 
     for(auto& c : name) {
-        c = (c >= 'a' && c <= 'z') ? c += ('A' - 'a') : c;
+        c = (c >= 'a' && c <= 'z') ? c + ('A' - 'a') : c;
     }
     const auto env_name = name + "_LOGLEVEL";
     const auto env      = std::getenv(env_name.data());
