@@ -1,3 +1,5 @@
+#include <optional>
+
 #include "assert.hpp"
 
 auto f() -> void {
