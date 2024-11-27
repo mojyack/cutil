@@ -3,48 +3,73 @@
 #include <string>
 
 #include "print.hpp"
+#include "split.hpp"
 
 #define CUTIL_MODULE_NAME cutil_assert_v3
 #include "_prologue.hpp"
 
 namespace impl {
-inline auto remove_prefix(std::string& str, const std::string_view prefix) -> void {
+inline auto remove_prefix(std::string& str, const std::string_view prefix) -> bool {
     if(str.starts_with(prefix)) {
         str = str.substr(prefix.size());
+        return true;
+    } else {
+        return false;
     }
 }
 
 // a::b::c::d -> c::d
-inline auto remove_prefix_before_second_delim(std::string& str, const std::string_view dlm) -> void {
+inline auto remove_prefix_before_second_delim(std::string& str, const std::string_view dlm) -> bool {
     const auto p1 = str.rfind(dlm);
-    if(p1 == str.npos) return;
+    if(p1 == str.npos) return false;
     const auto p2 = str.rfind(dlm, p1 - 1);
-    if(p2 == str.npos) return;
+    if(p2 == str.npos) return false;
     str = str.substr(p2 + dlm.size());
+    return true;
 }
 
-inline auto remove_suffix(std::string& str, const std::string_view suffix) -> void {
+inline auto remove_suffix(std::string& str, const std::string_view suffix) -> bool {
     if(str.ends_with(suffix)) {
         str.resize(str.size() - suffix.size());
+        return true;
+    } else {
+        return false;
     }
 }
 
-inline auto remove_suffix_pair(std::string& str, const char open, const char close) -> void {
-    if(str.back() != close) return;
+inline auto remove_suffix_pair(std::string& str, const std::string_view open, const std::string_view close) -> bool {
+    if(!str.ends_with(close)) return false;
     const auto p = str.rfind(open);
-    if(p == str.npos) return;
+    if(p == str.npos) return false;
     str.resize(p);
+    return true;
 }
 
 // ugly compiler-dependent hack
 inline auto format_function_name(std::string name) -> std::string {
+    constexpr auto clang =
+#if defined(__clang__)
+        true;
+#else
+        false;
+#endif
+
     remove_prefix(name, "static ");
     remove_prefix(name, "virtual ");
 
-    remove_suffix_pair(name, '[', ']'); // template parameters
+    remove_suffix_pair(name, "[", "]"); // template parameters
     remove_suffix(name, " ");
     remove_suffix(name, " const");
-    remove_suffix_pair(name, '(', ')'); // argument list
+    remove_suffix_pair(name, "(", ")"); // argument list
+    if(clang) {
+        if(remove_suffix(name, "(anonymous class)::operator()")) {
+            name += "<lambda>";
+        }
+    } else {
+        if(remove_suffix_pair(name, "<lambda", ">")) {
+            name += "<lambda>";
+        }
+    }
 
     // remove return type
     for(auto i = 0, depth = 0; i < int(name.size()); i += 1) {
@@ -61,9 +86,20 @@ inline auto format_function_name(std::string name) -> std::string {
     while(name[0] == '*') {
         name = name.substr(1);
     }
+    // now name should contains only namespace and function name
+    auto elms = split(name, "::");
+    auto ret  = std::string(elms.back());
+    for(auto i = elms.rbegin() + 1; i != elms.rend(); i += 1) {
+        constexpr auto anon_label = clang ? "(anonymous namespace)" : "{anonymous}";
 
-    remove_prefix_before_second_delim(name, "::"); // remove deep namespace
-    return name;
+        auto& str = *i;
+        if(str == anon_label) {
+            continue;
+        }
+        ret = std::string(str) + "::" + ret;
+        break;
+    }
+    return ret;
 }
 
 inline auto format_file_name(std::string name) -> std::string {

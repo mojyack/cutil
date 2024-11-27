@@ -65,7 +65,19 @@ namespace ns2 {
 auto f() -> void {
     line_print("nested namespace");
 }
+
+namespace ns3 {
+auto f() -> void {
+    line_print("nested namespace");
+}
+} // namespace ns3
 } // namespace ns2
+
+namespace {
+auto f2() -> void {
+    line_print("anonymous namespace");
+}
+} // namespace
 } // namespace ns
 
 auto main() -> int {
@@ -84,9 +96,11 @@ auto main() -> int {
     }
     ns::f();
     ns::ns2::f();
-    auto l = []() {
+    ns::ns2::ns3::f();
+    ns::f2();
+    auto l = [&](int) {
         line_print("lambda");
     };
-    l();
+    l(0);
     return 0;
 }
