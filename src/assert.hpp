@@ -57,6 +57,10 @@ inline auto format_function_name(std::string name) -> std::string {
             break;
         }
     }
+    // remove pointer asterisk
+    while(name[0] == '*') {
+        name = name.substr(1);
+    }
 
     remove_prefix_before_second_delim(name, "::"); // remove deep namespace
     return name;

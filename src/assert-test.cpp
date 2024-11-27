@@ -18,6 +18,11 @@ auto s() -> std::optional<std::optional<const int>> {
     return {};
 }
 
+auto p() -> int** {
+    line_print("pointer return type");
+    return nullptr;
+}
+
 struct S {
     static auto s() -> void {
         line_print("struct static");
@@ -66,6 +71,7 @@ auto main() -> int {
     a(0);
     t<int, std::basic_string<char>>();
     s();
+    p();
     {
         auto s = S();
         s.f();
