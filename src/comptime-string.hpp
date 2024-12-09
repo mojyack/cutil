@@ -11,8 +11,12 @@ template <size_t N>
 struct String {
     std::array<char, N> data;
 
-    constexpr auto operator[](const size_t i) const -> char {
-        return data[i];
+    constexpr auto operator[](const int i) const -> char {
+        if(i >= 0) {
+            return data[i];
+        } else {
+            return data[size() + i];
+        }
     }
 
     constexpr auto size() const -> size_t {

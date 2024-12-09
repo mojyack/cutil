@@ -3,6 +3,8 @@
 auto main() -> int {
     constexpr auto str1 = comptime::String("hello");
     static_assert(str1.size() == 5);
+    static_assert(str1[0] == 'h');
+    static_assert(str1[-1] == 'o');
     static_assert(str1.str() == "hello");
 
     constexpr auto str2 = comptime::concat<str1, comptime::String(" "), comptime::String("world")>;
