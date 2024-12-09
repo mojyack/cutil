@@ -58,19 +58,16 @@ inline auto logger_print(const Logger& logger, Args&&... args) -> void {
     const auto     level          = int(loglevel);
     constexpr auto short_filename = cutil_impl::format_file_name<filename>();
     constexpr auto short_function = cutil_impl::format_function_name<function>();
-    constexpr auto location       = comptime::concat<short_function, comptime::String(" @ "),
-                                                     short_filename, comptime::String(":"),
-                                                     comptime::to_string<line>>;
 
     // min:sec:msec [name] LEVEL func @ file.cpp:line arguments...
     auto string = build_string(
-        time_str, " ",            // time
-        "[", logger.name, "] ",   // name
-        colors[level],            // color on
-        loglevel_str[level], " ", // level
-        location.str(), " ",      // location
-        args...,                  // user
-        "\x1B[0m"                 // color off
+        time_str, " ",                                                     // time
+        "[", logger.name, "] ",                                            // name
+        colors[level],                                                     // color on
+        loglevel_str[level], " ",                                          // level
+        short_function.str(), " @ ", short_filename.str(), ":", line, " ", // location
+        args...,                                                           // user
+        "\x1B[0m"                                                          // color off
     );
 
     // print output

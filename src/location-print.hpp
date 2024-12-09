@@ -110,12 +110,9 @@ template <comptime::String filename, comptime::String function, size_t line, boo
 auto location_print(Args&&... args) -> void {
     constexpr auto short_filename = cutil_impl::format_file_name<filename>();
     constexpr auto short_function = cutil_impl::format_function_name<function>();
-    constexpr auto prefix         = comptime::concat<short_function, comptime::String(" @ "),
-                                                     short_filename, comptime::String(":"),
-                                                     comptime::to_string<line>, comptime::String(" ")>;
 
     auto& out = err ? std::cerr : std::cout;
-    out << prefix.str();
+    out << short_function.str() << " @ " << short_filename.str() << ":" << line << " ";
     (out << ... << args) << std::endl;
 }
 
