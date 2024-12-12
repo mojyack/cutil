@@ -32,36 +32,6 @@ constexpr auto remove_suffix_pair_fn() -> auto {
 template <comptime::String str, comptime::String open, comptime::String close>
 constexpr auto remove_suffix_pair = remove_suffix_pair_fn<str, open, close>();
 
-template <comptime::String str, int index = 0, int depth = 0>
-constexpr auto remove_return_type_fn() -> auto {
-    if constexpr(index < str.size()) {
-        if constexpr(str[index] == ' ' && depth == 0) {
-            return comptime::substr<str, index + 1>;
-        } else if constexpr(str[index] == '<') {
-            return remove_return_type_fn<str, index + 1, depth + 1>();
-        } else if constexpr(str[index] == '>') {
-            return remove_return_type_fn<str, index + 1, depth - 1>();
-        } else {
-            return remove_return_type_fn<str, index + 1, depth>();
-        }
-    } else {
-        return str;
-    }
-}
-template <comptime::String str, int index = 0, int depth = 0>
-constexpr auto remove_return_type = remove_return_type_fn<str, index, depth>();
-
-template <comptime::String str, comptime::String prefix>
-constexpr auto remove_prefix_recursive_fn() -> auto {
-    if constexpr(comptime::starts_with<str, prefix>) {
-        return remove_prefix_recursive_fn<comptime::remove_prefix<str, prefix>, prefix>();
-    } else {
-        return str;
-    }
-}
-template <comptime::String str, comptime::String prefix>
-constexpr auto remove_prefix_recursive = remove_prefix_recursive_fn<str, prefix>();
-
 constexpr auto is_clang() -> bool {
 #if defined(__clang__)
     return true;
@@ -87,8 +57,10 @@ constexpr auto format_function_name() -> auto {
     constexpr auto str7 = comptime::conditional<clang, comptime::remove_suffix<str6, comptime::String("(anonymous class)::operator()")>, remove_suffix_pair<str6, comptime::String("<lambda"), comptime::String(">")>>;
     constexpr auto str8 = comptime::conditional<str6.size() != str7.size(), comptime::concat<str7, comptime::String("<lambda>")>, str7>;
 
-    constexpr auto str9  = remove_return_type<str8>;
-    constexpr auto str10 = remove_prefix_recursive<str9, comptime::String("*")>; // remove pointer asterisk
+    // hack to compare npos-able values; since npos = (size_t)-1, so npos + 1 == 0 and 0 - 1 == npos
+    constexpr auto pos   = std::max(comptime::rfind<str8, comptime::String(" ")> + 1, comptime::rfind<str8, comptime::String("*")> + 1) - 1;
+    constexpr auto str9  = comptime::conditional<pos != std::string_view::npos, comptime::substr<str8, pos + 1>, str8>;
+    constexpr auto str10 = comptime::remove_prefix<str9, comptime::String("*")>;
 
     // now name should contains only namespace and function name
     constexpr auto anon_label = std::string_view(clang ? "(anonymous namespace)::" : "{anonymous}::");
