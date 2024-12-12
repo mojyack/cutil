@@ -90,16 +90,16 @@ constexpr auto format_function_name() -> auto {
     constexpr auto anon_label = std::string_view(clang ? "(anonymous namespace)::" : "{anonymous}::");
     constexpr auto str090     = comptime::replace<str080, comptime::String<anon_label.size()>(anon_label), "">;
 
+    // "Struct::func(std::optional<std::size_t>)::<lambda>"
+    //              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    constexpr auto str100 = remove_region_recursive<str090, "(", ")">;
+
     // "const int *const *func"
     //  ^^^^^^^^^^^^^^^^^^
     // hack to compare npos-able values; since npos = (size_t)-1, so npos + 1 == 0 and 0 - 1 == npos
-    constexpr auto pos    = std::max(comptime::rfind<str090, " "> + 1, comptime::rfind<str090, "*"> + 1) - 1;
-    constexpr auto str100 = comptime::conditional<pos != std::string_view::npos, comptime::substr<str090, pos + 1>, str090>;
-    constexpr auto str110 = comptime::remove_prefix<str100, "*">;
-
-    // "Struct::func(std::optional<std::size_t>)::<lambda>"
-    //              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    constexpr auto str120 = remove_region_recursive<str110, "(", ")">;
+    constexpr auto pos    = std::max(comptime::rfind<str100, " "> + 1, comptime::rfind<str100, "*"> + 1) - 1;
+    constexpr auto str110 = comptime::conditional<pos != std::string_view::npos, comptime::substr<str100, pos + 1>, str100>;
+    constexpr auto str120 = comptime::remove_prefix<str110, "*">;
 
     // "ns::ns2::ns3::func"
     //  ^^^^^^^^^
