@@ -45,29 +45,29 @@ template <comptime::String function_name>
 constexpr auto format_function_name() -> auto {
     constexpr auto clang = is_clang();
 
-    constexpr auto str0 = function_name;
-    constexpr auto str1 = comptime::remove_prefix<str0, comptime::String("static ")>;
-    constexpr auto str2 = comptime::remove_prefix<str1, comptime::String("virtual ")>;
+    constexpr auto str000 = function_name;
+    constexpr auto str010 = comptime::remove_prefix<str000, "static ">;
+    constexpr auto str020 = comptime::remove_prefix<str010, "virtual ">;
 
-    constexpr auto str3 = remove_suffix_pair<str2, comptime::String("["), comptime::String("]")>; // template parameters
-    constexpr auto str4 = comptime::remove_suffix<str3, comptime::String(" ")>;
-    constexpr auto str5 = comptime::remove_suffix<str4, comptime::String(" const")>;
-    constexpr auto str6 = remove_suffix_pair<str5, comptime::String("("), comptime::String(")")>; // argument list
+    constexpr auto str030 = remove_suffix_pair<str020, "[", "]">; // template parameters
+    constexpr auto str040 = comptime::remove_suffix<str030, " ">;
+    constexpr auto str050 = comptime::remove_suffix<str040, " const">;
+    constexpr auto str060 = remove_suffix_pair<str050, "(", ")">; // argument list
 
-    constexpr auto str7 = comptime::conditional<clang, comptime::remove_suffix<str6, comptime::String("(anonymous class)::operator()")>, remove_suffix_pair<str6, comptime::String("<lambda"), comptime::String(">")>>;
-    constexpr auto str8 = comptime::conditional<str6.size() != str7.size(), comptime::concat<str7, comptime::String("<lambda>")>, str7>;
+    constexpr auto str070 = comptime::conditional<clang, comptime::remove_suffix<str060, "(anonymous class)::operator()">, remove_suffix_pair<str060, "<lambda", ">">>;
+    constexpr auto str080 = comptime::conditional<str060.size() != str070.size(), comptime::concat<str070, "<lambda>">, str070>;
 
     // hack to compare npos-able values; since npos = (size_t)-1, so npos + 1 == 0 and 0 - 1 == npos
-    constexpr auto pos   = std::max(comptime::rfind<str8, comptime::String(" ")> + 1, comptime::rfind<str8, comptime::String("*")> + 1) - 1;
-    constexpr auto str9  = comptime::conditional<pos != std::string_view::npos, comptime::substr<str8, pos + 1>, str8>;
-    constexpr auto str10 = comptime::remove_prefix<str9, comptime::String("*")>;
+    constexpr auto pos    = std::max(comptime::rfind<str080, " "> + 1, comptime::rfind<str080, "*"> + 1) - 1;
+    constexpr auto str090 = comptime::conditional<pos != std::string_view::npos, comptime::substr<str080, pos + 1>, str080>;
+    constexpr auto str100 = comptime::remove_prefix<str090, "*">;
 
     // now name should contains only namespace and function name
     constexpr auto anon_label = std::string_view(clang ? "(anonymous namespace)::" : "{anonymous}::");
-    constexpr auto str11      = comptime::replace<str10, comptime::String<anon_label.size()>(anon_label), comptime::String("")>;
-    constexpr auto str12      = remove_prefix_before_second_delim<str11, comptime::String("::")>;
+    constexpr auto str110     = comptime::replace<str100, comptime::String<anon_label.size()>(anon_label), "">;
+    constexpr auto str120     = remove_prefix_before_second_delim<str110, "::">;
 
-    return str12;
+    return str120;
 }
 
 template <comptime::String function_name>
