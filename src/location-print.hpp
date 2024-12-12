@@ -73,29 +73,27 @@ constexpr auto is_clang() -> bool {
 // ugly compiler-dependent hack
 template <comptime::String function_name>
 constexpr auto format_function_name() -> auto {
-    using namespace comptime;
-
     constexpr auto clang = is_clang();
 
     constexpr auto str0 = function_name;
-    constexpr auto str1 = remove_prefix<str0, String("static ")>;
-    constexpr auto str2 = remove_prefix<str1, String("virtual ")>;
+    constexpr auto str1 = comptime::remove_prefix<str0, comptime::String("static ")>;
+    constexpr auto str2 = comptime::remove_prefix<str1, comptime::String("virtual ")>;
 
-    constexpr auto str3 = remove_suffix_pair<str2, String("["), String("]")>; // template parameters
-    constexpr auto str4 = remove_suffix<str3, String(" ")>;
-    constexpr auto str5 = remove_suffix<str4, String(" const")>;
-    constexpr auto str6 = remove_suffix_pair<str5, String("("), String(")")>; // argument list
+    constexpr auto str3 = remove_suffix_pair<str2, comptime::String("["), comptime::String("]")>; // template parameters
+    constexpr auto str4 = comptime::remove_suffix<str3, comptime::String(" ")>;
+    constexpr auto str5 = comptime::remove_suffix<str4, comptime::String(" const")>;
+    constexpr auto str6 = remove_suffix_pair<str5, comptime::String("("), comptime::String(")")>; // argument list
 
-    constexpr auto str7 = conditional<clang, remove_suffix<str6, String("(anonymous class)::operator()")>, remove_suffix_pair<str6, String("<lambda"), String(">")>>;
-    constexpr auto str8 = conditional<str6.size() != str7.size(), concat<str7, String("<lambda>")>, str7>;
+    constexpr auto str7 = comptime::conditional<clang, comptime::remove_suffix<str6, comptime::String("(anonymous class)::operator()")>, remove_suffix_pair<str6, comptime::String("<lambda"), comptime::String(">")>>;
+    constexpr auto str8 = comptime::conditional<str6.size() != str7.size(), comptime::concat<str7, comptime::String("<lambda>")>, str7>;
 
     constexpr auto str9  = remove_return_type<str8>;
-    constexpr auto str10 = remove_prefix_recursive<str9, String("*")>; // remove pointer asterisk
+    constexpr auto str10 = remove_prefix_recursive<str9, comptime::String("*")>; // remove pointer asterisk
 
     // now name should contains only namespace and function name
     constexpr auto anon_label = std::string_view(clang ? "(anonymous namespace)::" : "{anonymous}::");
-    constexpr auto str11      = replace<str10, String<anon_label.size()>(anon_label), String("")>;
-    constexpr auto str12      = remove_prefix_before_second_delim<str11, String("::")>;
+    constexpr auto str11      = comptime::replace<str10, comptime::String<anon_label.size()>(anon_label), comptime::String("")>;
+    constexpr auto str12      = remove_prefix_before_second_delim<str11, comptime::String("::")>;
 
     return str12;
 }
