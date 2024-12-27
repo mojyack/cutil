@@ -2,10 +2,8 @@
 #include <mutex>
 #include <optional>
 
-#ifdef CUTIL_NS
-namespace CUTIL_NS {
-#endif
-inline namespace cutil_critical_v1 {
+#define CUTIL_MODULE_NAME cutil_critical_v1
+#include "_prologue.hpp"
 
 template <class T>
 class Critical {
@@ -67,7 +65,4 @@ class Critical {
     Critical() {}
 };
 
-} // namespace cutil_critical_v1
-#ifdef CUTIL_NS
-}
-#endif
+#include "_prologue.hpp"
