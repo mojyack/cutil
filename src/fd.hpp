@@ -15,7 +15,7 @@ class FileDescriptor {
 
   public:
     auto read(void* const data, const size_t size) const -> bool {
-        auto len = size_t(0);
+        auto len = 0uz;
         while(len < size) {
             const auto n = ::read(fd, (uint8_t*)data + len, size - len);
             if(n == -1) {
@@ -56,7 +56,7 @@ class FileDescriptor {
     }
 
     auto write(const void* const data, const size_t size) const -> bool {
-        auto wrote = size_t(0);
+        auto wrote = 0uz;
         while(wrote != size) {
             const auto r = ::write(fd, data, size);
             if(r == -1) {

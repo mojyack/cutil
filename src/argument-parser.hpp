@@ -178,7 +178,7 @@ class GenericParser {
                 ret += " ";
             }
             ret += "\n";
-            auto maxlen = size_t(0);
+            auto maxlen = 0uz;
             for(const auto& entry : args) {
                 maxlen = std::max(maxlen, entry.value_desc.size());
             }
@@ -192,7 +192,7 @@ class GenericParser {
         }
         if(!keyword_args.empty()) {
             ret += "\noptions:\n";
-            auto maxlen = size_t(0);
+            auto maxlen = 0uz;
             auto lines  = std::vector<std::string>();
             for(const auto& [keys, entry] : keyword_args) {
                 auto& line = lines.emplace_back();

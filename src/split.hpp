@@ -35,7 +35,7 @@ inline auto split_like_shell(const std::string_view str) -> std::vector<std::str
     const auto len    = str.size();
     auto       qot    = '\0';
     auto       arglen = size_t();
-    for(auto i = size_t(0); i < len; i += 1) {
+    for(auto i = 0uz; i < len; i += 1) {
         while(i < len && std::isspace(str[i])) {
             i += 1;
         }
