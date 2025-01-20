@@ -13,8 +13,8 @@ auto main() -> int {
     auto exitted     = std::atomic_int(0);
     auto multi_event = MultiEvent();
     auto threads     = std::array<std::thread, num_threads>();
-    for(auto i = 0uz; i < threads.size(); i += 1) {
-        threads[i] = std::thread([&]() {
+    for(auto& thread : threads) {
+        thread = std::thread([&]() {
             while(running) {
                 count.fetch_add(1);
                 multi_event.wait();
@@ -33,8 +33,8 @@ auto main() -> int {
     while(exitted != num_threads) {
         multi_event.notify_unblock();
     }
-    for(auto i = 0uz; i < threads.size(); i += 1) {
-        threads[i].join();
+    for(auto& thread : threads) {
+        thread.join();
     }
 
     std::println("pass");
