@@ -6,17 +6,11 @@
 #include "_prologue.hpp"
 
 template <class... Args>
-[[noreturn]] auto panic(Args... args) -> void {
-    auto message = std::string();
-    if constexpr(sizeof...(args) != 0) {
-        message = std::format(std::forward<Args>(args)...);
-    } else {
-        message = "panic";
-    }
+[[noreturn]] auto panic(const std::format_string<Args...> format = "", Args... args) -> void {
 #ifdef CUTIL_EXCEPTION
-    throw std::runtime_error(message);
+    throw std::runtime_error(std::format(format, std::forward<Args>(args)...));
 #else
-    std::println(stderr, "{}", message);
+    std::println(stderr, format, std::forward<Args>(args)...);
     exit(1);
 #endif
 }
