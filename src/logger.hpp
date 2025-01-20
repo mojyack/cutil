@@ -9,7 +9,7 @@
 #include "location-print.hpp"
 #include "logger-pre.hpp"
 
-#define CUTIL_MODULE_NAME cutil_logger_v2
+#define CUTIL_MODULE_NAME cutil_logger_v3
 #include "_prologue.hpp"
 
 inline auto logger_time_base = std::chrono::system_clock::now();

@@ -7,7 +7,7 @@
 #include "charconv.hpp"
 #include "variant.hpp"
 
-#define CUTIL_MODULE_NAME cutil_argument_parser_v2
+#define CUTIL_MODULE_NAME cutil_argument_parser_v3
 #include "_prologue.hpp"
 
 namespace args {

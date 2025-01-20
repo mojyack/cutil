@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <vector>
 
-#define CUTIL_MODULE_NAME cutil_random_v1
+#define CUTIL_MODULE_NAME cutil_random_v2
 #include "_prologue.hpp"
 
 struct RandomEngine {
