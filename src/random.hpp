@@ -12,8 +12,8 @@ struct RandomEngine {
     std::mt19937_64 engine;
 
     template <std::integral T>
-    auto random_fill_bulk(T* const arr, const uint64_t count) -> void {
-        for(auto i = 0u; i < count; i += 1) {
+    auto random_fill_bulk(T* const arr, const size_t count) -> void {
+        for(auto i = 0uz; i < count; i += 1) {
             arr[i] = engine();
         }
     }

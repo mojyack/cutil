@@ -207,7 +207,7 @@ class GenericParser {
                 }
                 maxlen = std::max(maxlen, line.size());
             }
-            for(auto i = 0u; i < keyword_args.size(); i += 1) {
+            for(auto i = 0uz; i < keyword_args.size(); i += 1) {
                 const auto& entry = keyword_args[i].second;
                 const auto& line  = lines[i];
                 ret += line;
