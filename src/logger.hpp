@@ -31,7 +31,7 @@ inline auto string_to_loglevel(const std::string_view str) -> std::optional<Logl
 
 template <comptime::String filename, comptime::String function, size_t line, Loglevel loglevel, class... Args>
 inline auto logger_print(const Logger& logger, const std::format_string<Args...> format, Args&&... args) -> void {
-    if(int(logger.loglevel) < int(loglevel)) {
+    if(std::to_underlying(logger.loglevel) < std::to_underlying(loglevel)) {
         return;
     }
 
