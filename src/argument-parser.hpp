@@ -1,5 +1,6 @@
 #pragma once
 #include <print>
+#include <ranges>
 #include <string_view>
 #include <vector>
 
@@ -207,9 +208,8 @@ class GenericParser {
                 }
                 maxlen = std::max(maxlen, line.size());
             }
-            for(auto i = 0uz; i < keyword_args.size(); i += 1) {
-                const auto& entry = keyword_args[i].second;
-                const auto& line  = lines[i];
+            for(const auto& [arg, line] : std::views::zip(keyword_args, lines)) {
+                const auto& entry = arg.second;
                 ret += line;
                 ret += std::string(maxlen - line.size() + 2, ' ');
                 if(entry.opts.state == State::Uninitialized) {
