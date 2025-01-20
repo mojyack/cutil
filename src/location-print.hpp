@@ -3,7 +3,7 @@
 
 #include "comptime-string.hpp"
 
-#define CUTIL_MODULE_NAME cutil_location_print_v1
+#define CUTIL_MODULE_NAME cutil_location_print_v2
 #include "_prologue.hpp"
 
 namespace cutil_impl {
