@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <mutex>
+#include <print>
 
 #include "assert.hpp"
 #include "location-print.hpp"
@@ -29,7 +30,7 @@ inline auto string_to_loglevel(const std::string_view str) -> std::optional<Logl
 }
 
 template <comptime::String filename, comptime::String function, size_t line, Loglevel loglevel, class... Args>
-inline auto logger_print(const Logger& logger, Args&&... args) -> void {
+inline auto logger_print(const Logger& logger, const std::format_string<Args...> format, Args&&... args) -> void {
     if(int(logger.loglevel) < int(loglevel)) {
         return;
     }
@@ -53,26 +54,21 @@ inline auto logger_print(const Logger& logger, Args&&... args) -> void {
     const auto minutes  = std::chrono::duration_cast<std::chrono::minutes>(time);
     const auto seconds  = std::chrono::duration_cast<std::chrono::seconds>(time - minutes);
     const auto mseconds = std::chrono::duration_cast<std::chrono::milliseconds>(time - minutes - seconds);
-    const auto time_str = build_string(minutes.count(), ":", std::setfill('0'), std::setw(2), seconds.count(), ":", std::setw(3), mseconds.count());
 
     const auto     level          = int(loglevel);
     constexpr auto short_filename = cutil_impl::format_file_name<filename>();
     constexpr auto short_function = cutil_impl::format_function_name<function>();
 
-    // min:sec:msec [name] LEVEL func @ file.cpp:line arguments...
-    auto string = build_string(
-        time_str, " ",                                                     // time
-        "[", logger.name, "] ",                                            // name
-        colors[level],                                                     // color on
-        loglevel_str[level], " ",                                          // level
-        short_function.str(), " @ ", short_filename.str(), ":", line, " ", // location
-        args...,                                                           // user
-        "\x1B[0m"                                                          // color off
-    );
-
-    // print output
     stream_lock.lock();
-    (level <= int(Loglevel::Warn) ? std::cerr : std::cout) << string << std::endl;
+    const auto out = level <= int(Loglevel::Warn) ? stdout : stderr;
+    // time
+    std::print(out, "{}:{:02}:{:03} ", minutes.count(), seconds.count(), mseconds.count());
+    // name
+    std::print(out, "[{}] {}{} ", logger.name, colors[level], loglevel_str[level]);
+    // location
+    std::print(out, "{} @ {}:{} ", short_function.str(), short_filename.str(), line);
+    // contents
+    std::println(out, format, std::forward<Args>(args)...);
     stream_lock.unlock();
 }
 
@@ -89,7 +85,7 @@ inline auto Logger::set_name_and_detect_loglevel(std::string name) -> void {
     }
     const auto loglevel_o = string_to_loglevel(env);
     if(!loglevel_o) {
-        warn("invalid loglevel ", env);
+        std::println(stderr, "invalid loglevel {}", env);
     } else {
         this->loglevel = *loglevel_o;
     }

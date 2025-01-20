@@ -25,7 +25,7 @@ auto from_string<Pos>(const char* str) -> std::optional<Pos> {
 
 template <>
 auto to_string<Pos>(const Pos& data) -> std::string {
-    return build_string(data.x, ",", data.y);
+    return std::format("{},{}", data.x, data.y);
 }
 } // namespace args
 
@@ -65,27 +65,27 @@ auto all_type_test() -> void {
     parser.kwarg(&kflag, {"-b", "--bool"}, "BOOL", "keyword boolean value");
     parser.arg(&ppos, "X,Y", "positional custom value");
     parser.kwarg(&kpos, {"-p", "--pos"}, "FLOAT", "keyword custom value");
-    print("usage: test ", parser.get_help());
-    print("parse: ", parse(parser, "test -n 2 -f 2.0 -s hello -b true -p 100,200 1 1.0 world false 300,400") ? "ok" : "error");
+    std::println("usage: test {}", parser.get_help());
+    std::println("parse: {}", parse(parser, "test -n 2 -f 2.0 -s hello -b true -p 100,200 1 1.0 world false 300,400") ? "ok" : "error");
     if(pint != 1 || kint != 2 ||
        pdouble != 1.0 || kdouble != 2.0 ||
        std::string_view(kstr) != "hello" || std::string_view(pstr) != "world" ||
        pflag != false || kflag != true ||
        ppos.x != 300 || ppos.y != 400 || kpos.x != 100 || kpos.y != 200) {
-        print("args: error");
+        std::println("args: error");
     } else {
-        print("args: ok");
+        std::println("args: ok");
     }
-    print("pint: ", pint);
-    print("kint: ", kint);
-    print("pdouble: ", pdouble);
-    print("kdouble: ", kdouble);
-    print("pstr: ", pstr);
-    print("kstr: ", kstr);
-    print("pflag: ", pflag);
-    print("kflag: ", kflag);
-    print("ppos: ", ppos.x, ",", ppos.y);
-    print("kpos: ", kpos.x, ",", kpos.y);
+    std::println("pint: {}", pint);
+    std::println("kint: {}", kint);
+    std::println("pdouble: {}", pdouble);
+    std::println("kdouble: {}", kdouble);
+    std::println("pstr: {}", pstr);
+    std::println("kstr: {}", kstr);
+    std::println("pflag: {}", pflag);
+    std::println("kflag: {}", kflag);
+    std::println("ppos: {}", ppos.x, ",", ppos.y);
+    std::println("kpos: {}", kpos.x, ",", kpos.y);
 }
 
 auto flag_test() -> void {
@@ -95,9 +95,9 @@ auto flag_test() -> void {
     auto parser = args::Parser<>();
     parser.kwflag(&flag, {"-1"}, "normal");
     parser.kwflag(&invert, {"-2"}, "invert", {.invert_flag_value = true});
-    print("usage: test ", parser.get_help());
-    print("parse: ", parse(parser, "test -1 -2") ? "ok" : "error");
-    print("args:", flag && !invert ? "ok" : "error");
+    std::println("usage: test {}", parser.get_help());
+    std::println("parse: {}", parse(parser, "test -1 -2") ? "ok" : "error");
+    std::println("args: {}", flag && !invert ? "ok" : "error");
 }
 
 auto state_test() -> void {
@@ -106,26 +106,26 @@ auto state_test() -> void {
     {
         auto parser = args::Parser<>();
         parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::DefaultValue});
-        print("usage: test ", parser.get_help());
-        print("parse: ", parse(parser, "test") ? "ok" : "error");
-        print("args:", num == 8086 ? "ok" : "error");
+        std::println("usage: test {}", parser.get_help());
+        std::println("parse: {}", parse(parser, "test") ? "ok" : "error");
+        std::println("args: {}", num == 8086 ? "ok" : "error");
     }
     // initialized
     {
         auto parser = args::Parser<>();
         parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::Initialized});
-        print("usage: test ", parser.get_help());
-        print("parse: ", parse(parser, "test") ? "ok" : "error");
-        print("args:", num == 8086 ? "ok" : "error");
+        std::println("usage: test {}", parser.get_help());
+        std::println("parse: {}", parse(parser, "test") ? "ok" : "error");
+        std::println("args: {}", num == 8086 ? "ok" : "error");
     }
     // required
     {
         auto parser = args::Parser<>();
         parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::Uninitialized});
-        print("usage: test ", parser.get_help());
-        print("parse: ", !parse(parser, "test") ? "ok" : "error");
-        print("parse: ", parse(parser, "test -n 1") ? "ok" : "error");
-        print("args:", num == 1 ? "ok" : "error");
+        std::println("usage: test {}", parser.get_help());
+        std::println("parse: {}", !parse(parser, "test") ? "ok" : "error");
+        std::println("parse: {}", parse(parser, "test -n 1") ? "ok" : "error");
+        std::println("args: {}", num == 1 ? "ok" : "error");
     }
 }
 
@@ -140,9 +140,9 @@ auto minus_int_test() -> void {
     parser.arg(&u8, "INT", "u8");
     parser.arg(&i64, "INT", "i64");
     parser.arg(&u64, "INT", "u64");
-    print("usage: test ", parser.get_help());
-    print("parse: ", parse(parser, "test -1 2 -3 4") ? "ok" : "error");
-    print("args:", i8 == -1 && u8 == 2 && i64 == -3 && u64 == 4 ? "ok" : "error");
+    std::println("usage: test {}", parser.get_help());
+    std::println("parse: {}", parse(parser, "test -1 2 -3 4") ? "ok" : "error");
+    std::println("args: {}", i8 == -1 && u8 == 2 && i64 == -3 && u64 == 4 ? "ok" : "error");
 }
 
 auto out_of_range_test() -> void {
@@ -152,7 +152,7 @@ auto out_of_range_test() -> void {
     auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
     parser.arg(&i8, "INT", "i8");
     parser.arg(&u8, "INT", "u8");
-    print("parse: ", !parse(parser, "test 1 -2") ? "ok" : "error");
+    std::println("parse: {}", !parse(parser, "test 1 -2") ? "ok" : "error");
 }
 
 auto no_error_check_test() -> void {
@@ -162,7 +162,7 @@ auto no_error_check_test() -> void {
     auto parser = args::Parser<>();
     parser.arg(&required, "BOOL", "required");
     parser.kwflag(&help, {"-h", "--help"}, "help", {.no_error_check = true});
-    print("parse: ", parse(parser, "test -h") ? "ok" : "error");
+    std::println("parse: {}", parse(parser, "test -h") ? "ok" : "error");
 }
 } // namespace test
 

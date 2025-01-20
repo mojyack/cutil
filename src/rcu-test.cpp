@@ -1,7 +1,7 @@
 #include <array>
+#include <print>
 #include <thread>
 
-#include "print.hpp"
 #include "rcu.hpp"
 
 constexpr auto updater_interval = std::chrono::milliseconds(100);
@@ -28,7 +28,7 @@ auto validate_array(std::array<int, data_size> arr) -> void {
             for(auto n : arr) {
                 buf += std::to_string(n) + " ";
             }
-            printf("%s\n", buf.data());
+            std::println("{}", buf);
             break;
         }
     }
@@ -79,7 +79,7 @@ auto rcu_main(bool updater) -> void {
             }
             const auto spins = rcu_data.emplace(std::move(tmp));
             if(spins != 0) {
-                print("spins ", spins);
+                std::println("spins {}", spins);
             }
             std::this_thread::sleep_for(updater_interval);
         }
@@ -128,9 +128,9 @@ auto run_test(auto main, int baseline) -> int {
     auto record = int(score);
     finish_workers();
     if(baseline == 0) {
-        print("score: ", record);
+        std::println("score: {}", record);
     } else {
-        print("score: ", record, " ", 100. * record / baseline, "%");
+        std::println("score: {} {}%", record, 100. * record / baseline);
     }
     return record;
 }
@@ -139,23 +139,23 @@ auto main() -> int {
     data = new Data();
     rcu_data.emplace();
 
-    print("=== dangerous ===");
+    std::println("=== dangerous ===");
     auto dangerous_score = run_test(dangerous_main, 0);
 
-    print("=== mutex ===");
+    std::println("=== mutex ===");
     auto mutex_score = run_test(mutex_main, dangerous_score);
 
-    print("=== rcu ===");
+    std::println("=== rcu ===");
     auto rcu_score = run_test(rcu_main, dangerous_score);
 
-    print("=== rcu(autolock) ===");
+    std::println("=== rcu(autolock) ===");
     auto rcu_score2 = run_test(rcu_autolock_main, dangerous_score);
 
-    print("=== result ===");
-    print("dangerous:     ", dangerous_score, " (", dangerous_score / 1'000'100.0, "M)");
-    print("mutex:         ", mutex_score, " (", mutex_score / 1'000'100.0, "M)");
-    print("rcu:           ", rcu_score, " (", rcu_score / 1'000'100.0, "M)");
-    print("rcu(autolock): ", rcu_score2, " (", rcu_score2 / 1'000'100.0, "M)");
+    std::println("=== result ===");
+    std::println("dangerous:     {} ({:.4}M)", dangerous_score, dangerous_score / 1'000'100.0);
+    std::println("mutex:         {} ({:.4}M)", mutex_score, mutex_score / 1'000'100.0);
+    std::println("rcu:           {} ({:.4}M)", rcu_score, rcu_score / 1'000'100.0);
+    std::println("rcu(autolock): {} ({:.4}M)", rcu_score2, rcu_score2 / 1'000'100.0);
 
     return 0;
 }

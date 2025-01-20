@@ -1,9 +1,9 @@
 #pragma once
+#include <print>
 #include <string_view>
 #include <vector>
 
 #include "charconv.hpp"
-#include "print.hpp"
 #include "variant.hpp"
 
 #define CUTIL_MODULE_NAME cutil_argument_parser_v2
@@ -88,8 +88,8 @@ using Keys = std::vector<std::string_view>;
 #pragma push_macro("assert")
 #undef bail
 #undef assert
-#define bail(...)      \
-    warn(__VA_ARGS__); \
+#define bail(...)                                  \
+    __VA_OPT__(std::println(stderr, __VA_ARGS__);) \
     return false;
 
 #define assert(cond, ...) \
@@ -233,7 +233,7 @@ class GenericParser {
                 using T = decltype(pair.init);
 
                 auto value = from_string<T>(str);
-                assert(value, "failed to parse argument ", str);
+                assert(value, "failed to parse argument {}", str);
                 *pair.ptr = *value;
                 return true;
             });
@@ -252,11 +252,11 @@ class GenericParser {
                 continue;
             }
             if(entry.flag) {
-                assert(entry.pair.get_index() == index_of<bool>, "bug index=", entry.pair.get_index());
+                assert(entry.pair.get_index() == index_of<bool>, "bug index={}", entry.pair.get_index());
                 *as_pair<bool>(entry.pair).ptr = entry.opts.invert_flag_value ? false : true;
             } else {
                 index += 1;
-                assert(index < argc, "no following argument to ", keys[0]);
+                assert(index < argc, "no following argument to {}", keys[0]);
                 assert(parse_data(entry, argv[index]));
             }
             entry.found = true;
@@ -283,7 +283,7 @@ class GenericParser {
             return true;
         }
         for(auto& [keys, entry] : keyword_args) {
-            assert(entry.found || entry.opts.state != State::Uninitialized, "required argument ", keys[0], " is missing");
+            assert(entry.found || entry.opts.state != State::Uninitialized, "required argument {} is missing", keys[0]);
         }
         for(auto& entry : args) {
             assert(entry.found || entry.opts.state != State::Uninitialized, "required positional argument is missing");

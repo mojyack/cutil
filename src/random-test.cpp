@@ -1,4 +1,5 @@
-#include "print.hpp"
+#include <print>
+
 #include "random.hpp"
 
 namespace {
@@ -17,7 +18,7 @@ auto main(int argc, char** argv) -> int {
 
     auto engine = RandomEngine();
     if(const auto command = std::string_view(argv[1]); command == "1") {
-        print("random test");
+        std::println("random test");
         auto v = std::vector<std::byte>();
         for(auto i = 0; i <= 64; i += 1) {
             printf("%02d: ", i);
@@ -28,7 +29,7 @@ auto main(int argc, char** argv) -> int {
         print_bytes(engine.generate(32));
         print_bytes(engine.generate<32>());
     } else if(command == "2") {
-        print("benchmark");
+        std::println("benchmark");
         auto v = std::array<std::byte, 32>();
         for(auto i = 0; i <= 500000000; i += 1) {
             engine.random_fill_fixed_len<32>(v.data());

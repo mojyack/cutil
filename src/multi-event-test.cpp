@@ -1,8 +1,8 @@
 #include <array>
+#include <print>
 #include <thread>
 
 #include "multi-event.hpp"
-#include "print.hpp"
 
 auto main() -> int {
     constexpr auto num_iterates = 100;
@@ -27,7 +27,7 @@ auto main() -> int {
         multi_event.notify();
     }
 
-    print("ideal: ", num_iterates * num_threads, " result: ", int(count));
+    std::println("ideal={} result={}", num_iterates * num_threads, int(count));
 
     running = false;
     while(exitted != num_threads) {
@@ -37,7 +37,7 @@ auto main() -> int {
         threads[i].join();
     }
 
-    print("pass");
+    std::println("pass");
 
     return 0;
 }

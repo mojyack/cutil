@@ -112,6 +112,6 @@ auto variant_test() -> void {
 
 auto main() -> int {
     variant_test();
-    print("pass");
+    std::println("pass");
     return 0;
 }

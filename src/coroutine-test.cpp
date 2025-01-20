@@ -1,5 +1,6 @@
+#include <print>
+
 #include "coroutine.hpp"
-#include "print.hpp"
 
 using Worker = CoRoutine<int>;
 
@@ -20,9 +21,9 @@ auto main() -> int {
     for(auto i : {1, 2, 3, 4, 5, -1}) {
         arg = i;
         ret = worker.resume();
-        print("arg=", arg, " ret=", ret);
+        std::println("arg={} ret={}", arg, ret);
         if(worker.done()) {
-            print("done");
+            std::println("done");
             break;
         }
     }

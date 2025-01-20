@@ -1,5 +1,6 @@
+#include <print>
+
 #include "pair-table.hpp"
-#include "print.hpp"
 
 namespace {
 enum Enum {
@@ -38,10 +39,10 @@ auto run() -> bool {
 
 auto main() -> int {
     if(!run()) {
-        print("fail");
+        std::println("fail");
         return 1;
     } else {
-        print("pass");
+        std::println("pass");
         return 0;
     }
 }

@@ -83,7 +83,7 @@ constexpr auto format_function_name() -> auto {
     // "int main()::(anonymous class)::operator()"
     //              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> <lambda>
     constexpr auto str070 = comptime::conditional<clang, comptime::remove_suffix<str060, "(anonymous class)::operator()">, remove_suffix_pair<str060, "<lambda", ">">>;
-    constexpr auto str080 = comptime::conditional<str060.size() != str070.size(), comptime::concat<str070, "<lambda>">, str070>;
+    constexpr auto str080 = comptime::conditional < str060.size() != str070.size(), comptime::concat<str070, "<lambda>">, str070 > ;
 
     // "void (anonymous namespace)::func"
     //       ^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,7 +98,7 @@ constexpr auto format_function_name() -> auto {
     //  ^^^^^^^^^^^^^^^^^^
     // hack to compare npos-able values; since npos = (size_t)-1, so npos + 1 == 0 and 0 - 1 == npos
     constexpr auto pos    = std::max(comptime::rfind<str100, " "> + 1, comptime::rfind<str100, "*"> + 1) - 1;
-    constexpr auto str110 = comptime::conditional<pos != std::string_view::npos, comptime::substr<str100, pos + 1>, str100>;
+    constexpr auto str110 = comptime::conditional < pos != std::string_view::npos, comptime::substr<str100, pos + 1>, str100 > ;
     constexpr auto str120 = comptime::remove_prefix<str110, "*">;
 
     // "ns::ns2::ns3::func"
@@ -115,13 +115,13 @@ constexpr auto format_file_name() -> auto {
 } // namespace cutil_impl
 
 template <comptime::String filename, comptime::String function, size_t line, bool err, class... Args>
-auto location_print(Args&&... args) -> void {
+auto location_print(const std::format_string<Args...> format, Args&&... args) -> void {
     constexpr auto short_filename = cutil_impl::format_file_name<filename>();
     constexpr auto short_function = cutil_impl::format_function_name<function>();
 
-    auto& out = err ? std::cerr : std::cout;
-    out << short_function.str() << " @ " << short_filename.str() << ":" << line << " ";
-    (out << ... << args) << std::endl;
+    const auto out = err ? stdout : stderr;
+    std::print(out, "{} @ {}:{} ", short_function.str(), short_filename.str(), line);
+    std::println(out, format, std::forward<Args>(args)...);
 }
 
 #include "_prologue.hpp"
