@@ -68,7 +68,9 @@ inline auto logger_print(const Logger& logger, const std::format_string<Args...>
     // location
     std::print(out, "{} @ {}:{} ", short_function.str(), short_filename.str(), line);
     // contents
-    std::println(out, format, std::forward<Args>(args)...);
+    std::print(out, format, std::forward<Args>(args)...);
+    // reset color
+    std::println(out, "\x1B[0m");
     stream_lock.unlock();
 }
 
