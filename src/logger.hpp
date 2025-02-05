@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <mutex>
 #include <print>
+#include <utility>
 
 #include "assert.hpp"
 #include "location-print.hpp"
