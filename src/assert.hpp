@@ -16,9 +16,9 @@ template <class... Args>
 }
 
 template <class... Args>
-auto dynamic_assert(const bool cond, Args... args) -> void {
+auto dynamic_assert(const bool cond, const std::format_string<Args...> format = "", Args... args) -> void {
     if(!cond) {
-        panic(args...);
+        panic(format, args...);
     }
 }
 
