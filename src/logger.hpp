@@ -10,7 +10,7 @@
 #include "location-print.hpp"
 #include "logger-pre.hpp"
 
-#define CUTIL_MODULE_NAME cutil_logger_v3
+#define CUTIL_MODULE_NAME cutil_logger_v4
 #include "_prologue.hpp"
 
 inline auto logger_time_base = std::chrono::system_clock::now();
@@ -61,7 +61,7 @@ inline auto logger_print(const Logger& logger, const std::format_string<Args...>
     constexpr auto short_function = cutil_impl::format_function_name<function>();
 
     stream_lock.lock();
-    const auto out = level <= int(Loglevel::Warn) ? stdout : stderr;
+    const auto out = level <= int(Loglevel::Warn) ? stderr : stdout;
     // time
     std::print(out, "{}:{:02}:{:03} ", minutes.count(), seconds.count(), mseconds.count());
     // name

@@ -2,7 +2,7 @@
 #include <optional>
 #include <string>
 
-#define CUTIL_MODULE_NAME cutil_logger_v3
+#define CUTIL_MODULE_NAME cutil_logger_v4
 #include "_prologue.hpp"
 
 enum class Loglevel : uint8_t {

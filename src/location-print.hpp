@@ -3,7 +3,7 @@
 
 #include "comptime-string.hpp"
 
-#define CUTIL_MODULE_NAME cutil_location_print_v2
+#define CUTIL_MODULE_NAME cutil_location_print_v3
 #include "_prologue.hpp"
 
 namespace cutil_impl {
@@ -119,7 +119,7 @@ auto location_print(const std::format_string<Args...> format, Args&&... args) ->
     constexpr auto short_filename = cutil_impl::format_file_name<filename>();
     constexpr auto short_function = cutil_impl::format_function_name<function>();
 
-    const auto out = err ? stdout : stderr;
+    const auto out = err ? stderr : stdout;
     std::print(out, "{} @ {}:{} ", short_function.str(), short_filename.str(), line);
     std::println(out, format, std::forward<Args>(args)...);
 }
