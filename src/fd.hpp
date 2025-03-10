@@ -6,7 +6,7 @@
 
 #include <unistd.h>
 
-#define CUTIL_MODULE_NAME cutil_fd_v2
+#define CUTIL_MODULE_NAME cutil_fd_v3
 #include "_prologue.hpp"
 
 class FileDescriptor {
@@ -18,7 +18,7 @@ class FileDescriptor {
         auto len = 0uz;
         while(len < size) {
             const auto n = ::read(fd, (uint8_t*)data + len, size - len);
-            if(n == -1) {
+            if(n <= 0) {
                 return false;
             }
             len += n;
@@ -59,7 +59,7 @@ class FileDescriptor {
         auto wrote = 0uz;
         while(wrote != size) {
             const auto r = ::write(fd, data, size);
-            if(r == -1) {
+            if(r <= 0) {
                 return false;
             }
             wrote += r;
