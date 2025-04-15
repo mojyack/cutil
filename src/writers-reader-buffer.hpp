@@ -4,9 +4,6 @@
 
 #include "critical.hpp"
 
-#define CUTIL_MODULE_NAME cutil_writers_reader_buffer_v2
-#include "_prologue.hpp"
-
 template <class T>
 class WritersReaderBuffer {
   private:
@@ -33,5 +30,3 @@ class WritersReaderBuffer {
         return data;
     }
 };
-
-#include "_prologue.hpp"

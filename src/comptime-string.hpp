@@ -3,9 +3,6 @@
 #include <array>
 #include <string_view>
 
-#define CUTIL_MODULE_NAME cutil_comptime_string_v1
-#include "_prologue.hpp"
-
 namespace comptime {
 template <size_t N>
 struct String {
@@ -154,5 +151,3 @@ constexpr auto replace_fn() -> auto {
 template <String str, String from, String to, size_t index = 0>
 constexpr auto replace = replace_fn<str, from, to, index>();
 } // namespace comptime
-
-#include "_prologue.hpp"

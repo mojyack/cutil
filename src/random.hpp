@@ -5,9 +5,6 @@
 #include <type_traits>
 #include <vector>
 
-#define CUTIL_MODULE_NAME cutil_random_v2
-#include "_prologue.hpp"
-
 struct RandomEngine {
     std::mt19937_64 engine;
 
@@ -66,5 +63,3 @@ struct RandomEngine {
         : engine((std::random_device())()) {
     }
 };
-
-#include "_prologue.hpp"

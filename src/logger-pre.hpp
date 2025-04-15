@@ -2,9 +2,6 @@
 #include <optional>
 #include <string>
 
-#define CUTIL_MODULE_NAME cutil_logger_v4
-#include "_prologue.hpp"
-
 enum class Loglevel : uint8_t {
     Error = 0,
     Warn,
@@ -25,5 +22,3 @@ struct Logger {
     Logger() = default;
     Logger(std::string name);
 };
-
-#include "_prologue.hpp"

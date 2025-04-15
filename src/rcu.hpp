@@ -3,9 +3,6 @@
 #include <thread>
 #include <utility>
 
-#define CUTIL_MODULE_NAME cutil_rcu_v1
-#include "_prologue.hpp"
-
 template <class T>
 struct RCU {
   private:
@@ -75,5 +72,3 @@ struct RCU {
         return {AutoLock{data}, data->data};
     }
 };
-
-#include "_prologue.hpp"

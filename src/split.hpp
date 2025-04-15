@@ -3,9 +3,6 @@
 #include <utility>
 #include <vector>
 
-#define CUTIL_MODULE_NAME cutil_assert_v1
-#include "_prologue.hpp"
-
 inline auto split(const std::string_view str, const std::string_view sep) -> std::vector<std::string_view> {
     auto ret = std::vector<std::string_view>();
     auto pos = std::string_view::size_type(0);
@@ -68,5 +65,3 @@ inline auto split_like_shell(const std::string_view str) -> std::vector<std::str
     // internal::dynamic_assert(qot == '\0', "unclosed quotes");
     return result;
 }
-
-#include "_prologue.hpp"

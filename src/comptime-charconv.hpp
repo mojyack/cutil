@@ -3,9 +3,6 @@
 
 #include "comptime-string.hpp"
 
-#define CUTIL_MODULE_NAME cutil_comptime_string_v1
-#include "_prologue.hpp"
-
 namespace comptime {
 template <uintmax_t num, String str = "">
 constexpr auto to_string_unsinged_fn() -> auto {
@@ -30,5 +27,3 @@ constexpr auto to_string_fn() -> auto {
 template <auto num>
 constexpr auto to_string = to_string_fn<num>();
 } // namespace comptime
-
-#include "_prologue.hpp"

@@ -7,9 +7,6 @@
 #include "charconv.hpp"
 #include "variant.hpp"
 
-#define CUTIL_MODULE_NAME cutil_argument_parser_v3
-#include "_prologue.hpp"
-
 namespace args {
 using CStr = const char*;
 
@@ -300,5 +297,3 @@ using Parser = GenericParser<bool, int, double, CStr, Ts...>;
 #pragma pop_macro("bail")
 
 } // namespace args
-
-#include "_prologue.hpp"

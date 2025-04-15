@@ -6,9 +6,6 @@
 
 #include <unistd.h>
 
-#define CUTIL_MODULE_NAME cutil_fd_v3
-#include "_prologue.hpp"
-
 class FileDescriptor {
   private:
     int fd = -1;
@@ -109,5 +106,3 @@ class FileDescriptor {
         close();
     }
 };
-
-#include "_prologue.hpp"

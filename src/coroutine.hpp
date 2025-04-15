@@ -3,9 +3,6 @@
 #include <exception>
 #include <utility>
 
-#define CUTIL_MODULE_NAME cutil_coroutine_v1
-#include "_prologue.hpp"
-
 template <class T>
 struct CoGenerator {
     struct promise_type {
@@ -86,5 +83,3 @@ struct CoRoutine {
         return generator.handle.done();
     }
 };
-
-#include "_prologue.hpp"

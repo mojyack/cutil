@@ -5,9 +5,6 @@
 #include <tuple>
 #include <utility>
 
-#define CUTIL_MODULE_NAME cutil_variant_v1
-#include "_prologue.hpp"
-
 template <class... Ts>
 class Variant {
   private:
@@ -232,5 +229,3 @@ class Variant {
         reset();
     }
 };
-
-#include "_prologue.hpp"

@@ -2,9 +2,6 @@
 #include <mutex>
 #include <optional>
 
-#define CUTIL_MODULE_NAME cutil_critical_v1
-#include "_prologue.hpp"
-
 template <class T>
 class Critical {
   private:
@@ -64,5 +61,3 @@ class Critical {
     Critical(Args&&... args) : data(std::move(args)...) {}
     Critical() {}
 };
-
-#include "_prologue.hpp"

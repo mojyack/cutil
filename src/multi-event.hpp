@@ -1,9 +1,6 @@
 #pragma once
 #include "event.hpp"
 
-#define CUTIL_MODULE_NAME cutil_multi_event_v1
-#include "_prologue.hpp"
-
 // Multiple Waiters / Single Notifier
 class MultiEvent {
   private:
@@ -47,5 +44,3 @@ class MultiEvent {
 
     MultiEvent(const MultiEvent&) {}
 };
-
-#include "_prologue.hpp"

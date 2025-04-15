@@ -3,9 +3,6 @@
 
 #include "critical.hpp"
 
-#define CUTIL_MODULE_NAME cutil_timer_event_v1
-#include "_prologue.hpp"
-
 class TimerEvent {
   private:
     std::condition_variable condv;
@@ -30,5 +27,3 @@ class TimerEvent {
         condv.notify_all();
     }
 };
-
-#include "_prologue.hpp"

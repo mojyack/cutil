@@ -3,9 +3,6 @@
 
 #include "comptime-string.hpp"
 
-#define CUTIL_MODULE_NAME cutil_location_print_v3
-#include "_prologue.hpp"
-
 namespace cutil_impl {
 template <comptime::String str, comptime::String dlm>
 constexpr auto remove_prefix_before_second_delim_fn() -> auto {
@@ -123,5 +120,3 @@ auto location_print(const std::format_string<Args...> format, Args&&... args) ->
     std::print(out, "{} @ {}:{} ", short_function.str(), short_filename.str(), line);
     std::println(out, format, std::forward<Args>(args)...);
 }
-
-#include "_prologue.hpp"

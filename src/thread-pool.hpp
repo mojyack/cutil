@@ -4,9 +4,6 @@
 
 #include "multi-event.hpp"
 
-#define CUTIL_MODULE_NAME cutil_thread_pool_v1
-#include "_prologue.hpp"
-
 template <int N>
 struct ThreadPool {
     std::atomic_int            finished;
@@ -46,5 +43,3 @@ struct CustomDataThreadPool : ThreadPool<N> {
         }
     }
 };
-
-#include "_prologue.hpp"

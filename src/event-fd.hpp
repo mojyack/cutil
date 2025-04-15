@@ -4,9 +4,6 @@
 
 #include "fd.hpp"
 
-#define CUTIL_MODULE_NAME cutil_event_fd_v1
-#include "_prologue.hpp"
-
 class EventFileDescriptor {
   private:
     const FileDescriptor fd;
@@ -39,5 +36,3 @@ class EventFileDescriptor {
 
     EventFileDescriptor() : fd(eventfd(0, 0)) {}
 };
-
-#include "_prologue.hpp"

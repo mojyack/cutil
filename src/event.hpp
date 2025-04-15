@@ -1,9 +1,6 @@
 #pragma once
 #include <atomic>
 
-#define CUTIL_MODULE_NAME cutil_event_v1
-#include "_prologue.hpp"
-
 // Single Waiter / Multiple Notifiers
 class Event {
   private:
@@ -24,5 +21,3 @@ class Event {
 
     Event(const Event&) {}
 };
-
-#include "_prologue.hpp"

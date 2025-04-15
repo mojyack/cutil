@@ -1,7 +1,6 @@
 #pragma once
 #include <chrono>
 #include <cstdlib>
-#include <iomanip>
 #include <mutex>
 #include <print>
 #include <utility>
@@ -9,9 +8,6 @@
 #include "assert.hpp"
 #include "location-print.hpp"
 #include "logger-pre.hpp"
-
-#define CUTIL_MODULE_NAME cutil_logger_v4
-#include "_prologue.hpp"
 
 inline auto logger_time_base = std::chrono::system_clock::now();
 inline auto stream_lock      = std::mutex();
@@ -97,5 +93,3 @@ inline auto Logger::set_name_and_detect_loglevel(std::string name) -> void {
 inline Logger::Logger(std::string name) {
     set_name_and_detect_loglevel(std::move(name));
 }
-
-#include "_prologue.hpp"

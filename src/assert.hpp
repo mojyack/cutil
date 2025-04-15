@@ -2,9 +2,6 @@
 #include <print>
 #include <string>
 
-#define CUTIL_MODULE_NAME cutil_assert_v3
-#include "_prologue.hpp"
-
 template <class... Args>
 [[noreturn]] auto panic(const std::format_string<Args...> format = "", Args... args) -> void {
 #ifdef CUTIL_EXCEPTION
@@ -21,5 +18,3 @@ auto dynamic_assert(const bool cond, const std::format_string<Args...> format = 
         panic(format, args...);
     }
 }
-
-#include "_prologue.hpp"

@@ -5,9 +5,6 @@
 #include <string>
 #include <string_view>
 
-#define CUTIL_MODULE_NAME cutil_charconv_v1
-#include "_prologue.hpp"
-
 template <std::integral T>
 auto from_chars(const std::string_view str, const int base = 10) -> std::optional<T> {
     auto r = T();
@@ -36,5 +33,3 @@ auto from_chars(const std::string_view str) -> std::optional<T> {
     }
     */
 }
-
-#include "_prologue.hpp"

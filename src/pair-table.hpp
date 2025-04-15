@@ -2,9 +2,6 @@
 #include <array>
 #include <cstddef>
 
-#define CUTIL_MODULE_NAME cutil_pair_table_v1
-#include "_prologue.hpp"
-
 template <class T, class U, size_t N>
 struct PairTable {
     using Pair = std::pair<T, U>;
@@ -36,5 +33,3 @@ auto make_pair_table(std::pair<T, U> (&&values)[N]) -> PairTable<T, U, N> {
         .array = std::to_array(values),
     };
 }
-
-#include "_prologue.hpp"

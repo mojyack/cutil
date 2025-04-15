@@ -4,9 +4,6 @@
 #include <span>
 #include <vector>
 
-#define CUTIL_MODULE_NAME cutil_file_io_v1
-#include "_prologue.hpp"
-
 inline auto read_file(const char* const path) -> std::optional<std::vector<std::byte>> {
     auto fs = std::ifstream(path, std::ios::binary);
     if(!fs) {
@@ -41,5 +38,3 @@ inline auto write_file(const char* const path, const std::span<const std::byte> 
 
     return true;
 }
-
-#include "_prologue.hpp"

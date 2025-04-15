@@ -1,9 +1,6 @@
 #pragma once
 #include <vector>
 
-#define CUTIL_MODULE_NAME cutil_dumb_map_v1
-#include "_prologue.hpp"
-
 template <class K, class V>
 struct LightMap {
     using E = std::pair<K, V>;
@@ -54,5 +51,3 @@ struct LightMap {
         }
     }
 };
-
-#include "_prologue.hpp"

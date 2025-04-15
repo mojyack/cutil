@@ -2,9 +2,6 @@
 #include <print>
 #include <span>
 
-#define CUTIL_MODULE_NAME cutil_hexdump_v1
-#include "_prologue.hpp"
-
 inline auto dump_hex(const std::span<const std::byte> data) -> void {
     for(auto i = 0uz; i < data.size();) {
         std::print("{:04x} ", i);
@@ -25,5 +22,3 @@ inline auto dump_hex(const std::span<const std::byte> data) -> void {
         std::println("|{}|", ascii.data());
     }
 }
-
-#include "_prologue.hpp"
