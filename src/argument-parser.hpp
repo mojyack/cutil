@@ -269,7 +269,7 @@ class GenericParser {
             entry.found = true;
             goto next;
         }
-        bail("unhandled argument ", argv[index]);
+        bail("unhandled argument {}", argv[index]);
 
     next:
         index += 1;
