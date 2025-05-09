@@ -2,7 +2,9 @@
 #include <print>
 #include <span>
 
-inline auto dump_hex(const std::span<const std::byte> data) -> void {
+template <class T>
+inline auto dump_hex(const T& data) -> void {
+    static_assert(sizeof(data[0]) == 1);
     for(auto i = 0uz; i < data.size();) {
         std::print("{:04x} ", i);
         auto ascii = std::array<char, 16 + 1>();
@@ -21,4 +23,8 @@ inline auto dump_hex(const std::span<const std::byte> data) -> void {
         }
         std::println("|{}|", ascii.data());
     }
+}
+
+inline auto dump_hex(const void* const ptr, const size_t len) -> void {
+    dump_hex(std::span{std::bit_cast<std::byte*>(ptr), len});
 }
