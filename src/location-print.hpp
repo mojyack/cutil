@@ -74,7 +74,7 @@ constexpr auto format_function_name() -> auto {
     //              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> <lambda>
     constexpr auto orig = str_;
 
-    tmp = comptime::conditional<is_clang, comptime::remove_suffix<orig, "(anonymous class)::operator()">, remove_suffix_pair<orig, "<lambda", ">">>;
+    tmp = comptime::conditional<is_clang, comptime::remove_suffix<str, "(anonymous class)::operator()">, remove_suffix_pair<str, "<lambda", ">">>;
     tmp = comptime::conditional<(str.size() != orig.size()), comptime::concat<str, "{lambda}">, str>;
 
     // "void Struct<int,char>::func"
