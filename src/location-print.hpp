@@ -29,80 +29,84 @@ constexpr auto remove_suffix_pair_fn() -> auto {
 template <comptime::String str, comptime::String open, comptime::String close>
 constexpr auto remove_suffix_pair = remove_suffix_pair_fn<str, open, close>();
 
-template <comptime::String str, comptime::String open, comptime::String close>
-constexpr auto remove_region_recursive_fn() -> auto {
-    constexpr auto opos = comptime::find<str, open>;
-    constexpr auto epos = comptime::find<str, close, opos + 1>;
-    if constexpr(opos == std::string_view::npos || epos == std::string_view::npos) {
-        return str;
-    } else {
-        constexpr auto before = comptime::substr<str, 0, opos>;
-        constexpr auto after  = comptime::substr<str, epos + 1>;
-        constexpr auto substr = comptime::concat<before, after>;
-        return remove_region_recursive_fn<substr, open, close>();
-    }
-}
-template <comptime::String str, comptime::String open, comptime::String close>
-constexpr auto remove_region_recursive = remove_region_recursive_fn<str, open, close>();
-
-constexpr auto is_clang() -> bool {
+constexpr auto is_clang =
 #if defined(__clang__)
-    return true;
+    true;
 #else
-    return false;
+    false;
 #endif
-}
 
 // ugly compiler-dependent hack
 template <comptime::String function_name>
 constexpr auto format_function_name() -> auto {
-    constexpr auto clang = is_clang();
+    // macros to shadow constexpr variable
+#pragma push_macro("tmp")
+#pragma push_macro("end")
+#undef tmp
+#define tmp                    \
+    constexpr auto str = str_; \
+    {                          \
+        constexpr auto str_
+#undef end
+#define end }
+
+    constexpr auto str_ = function_name;
 
     // "static|virtual void Struct::func()"
     //  ^^^^^^^^^^^^^^^
-    constexpr auto str000 = function_name;
-    constexpr auto str010 = comptime::remove_prefix<str000, "static ">;
-    constexpr auto str020 = comptime::remove_prefix<str010, "virtual ">;
+    tmp = comptime::remove_prefix<str, "static ">;
+    tmp = comptime::remove_prefix<str, "virtual ">;
 
-    // "void Struct::func(int) const [T = int, U = char]"
-    //                              ^^^^^^^^^^^^^^^^^^^^
-    constexpr auto str030 = remove_suffix_pair<str020, "[", "]">;
-    constexpr auto str040 = comptime::remove_suffix<str030, " ">;
+    // "void Struct<int,char>::func(int) const [T = int, U = char]"
+    //                                        ^^^^^^^^^^^^^^^^^^^^
+    tmp = comptime::remove_region<str, '[', ']'>;
+    tmp = comptime::remove_suffix<str, " ">;
 
-    // "void Struct::func(int) const""
-    //                        ^^^^^^
-    constexpr auto str050 = comptime::remove_suffix<str040, " const">;
+    // "void Struct<int,char>::func(int) const""
+    //                                  ^^^^^^
+    tmp = comptime::remove_suffix<str, " const">;
 
-    // "void Struct::func(int)""
-    //                   ^^^^^
-    constexpr auto str060 = remove_suffix_pair<str050, "(", ")">;
+    // "void Struct<int,char>::func(int)""
+    //                             ^^^^^
+    tmp = remove_suffix_pair<str, "(", ")">;
 
     // "int main()::(anonymous class)::operator()"
     //              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> <lambda>
-    constexpr auto str070 = comptime::conditional<clang, comptime::remove_suffix<str060, "(anonymous class)::operator()">, remove_suffix_pair<str060, "<lambda", ">">>;
-    constexpr auto str080 = comptime::conditional < str060.size() != str070.size(), comptime::concat<str070, "<lambda>">, str070 > ;
+    constexpr auto orig = str_;
+
+    tmp = comptime::conditional<is_clang, comptime::remove_suffix<orig, "(anonymous class)::operator()">, remove_suffix_pair<orig, "<lambda", ">">>;
+    tmp = comptime::conditional<(str.size() != orig.size()), comptime::concat<str, "{lambda}">, str>;
+
+    // "void Struct<int,char>::func"
+    //             ^^^^^^^^^^
+    tmp = comptime::remove_region<str, '<', '>'>;
 
     // "void (anonymous namespace)::func"
     //       ^^^^^^^^^^^^^^^^^^^^^^^
-    constexpr auto anon_label = std::string_view(clang ? "(anonymous namespace)::" : "{anonymous}::");
-    constexpr auto str090     = comptime::replace<str080, comptime::String<anon_label.size()>(anon_label), "">;
+    constexpr auto anon_label = std::string_view(is_clang ? "(anonymous namespace)::" : "{anonymous}::");
+
+    tmp = comptime::replace<str, comptime::String<anon_label.size()>(anon_label), "">;
 
     // "Struct::func(std::optional<std::size_t>)::<lambda>"
     //              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    constexpr auto str100 = remove_region_recursive<str090, "(", ")">;
+    tmp = comptime::remove_region<str, '(', ')'>;
 
     // "const int *const *func"
     //  ^^^^^^^^^^^^^^^^^^
     // hack to compare npos-able values; since npos = (size_t)-1, so npos + 1 == 0 and 0 - 1 == npos
-    constexpr auto pos    = std::max(comptime::rfind<str100, " "> + 1, comptime::rfind<str100, "*"> + 1) - 1;
-    constexpr auto str110 = comptime::conditional < pos != std::string_view::npos, comptime::substr<str100, pos + 1>, str100 > ;
-    constexpr auto str120 = comptime::remove_prefix<str110, "*">;
+    constexpr auto pos = std::max(comptime::rfind<str_, " "> + 1, comptime::rfind<str_, "*"> + 1) - 1;
+
+    tmp = comptime::conditional<(pos != std::string_view::npos), comptime::substr<str, pos + 1>, str>;
+    tmp = comptime::remove_prefix<str, "*">;
 
     // "ns::ns2::ns3::func"
     //  ^^^^^^^^^
-    constexpr auto str130 = remove_prefix_before_second_delim<str120, "::">;
+    tmp = remove_prefix_before_second_delim<str, "::">;
+    return str_;
 
-    return str130;
+    end end end end end end end end end end end end end end;
+#pragma pop_macro("tmp")
+#pragma pop_macro("end")
 }
 
 template <comptime::String function_name>
