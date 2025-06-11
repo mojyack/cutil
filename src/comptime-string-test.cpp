@@ -29,6 +29,9 @@ auto main() -> int {
 
     static_assert(comptime::replace<str2, " ", "___">.str() == "hello___world");
 
+    static_assert(comptime::remove_region<"hello(world)", '(', ')'>.str() == "hello");
+    static_assert(comptime::remove_region<"(a(b)(c))(pre)hello(world(world))", '(', ')'>.str() == "hello");
+
     static_assert(comptime::to_string<65536>.str() == "65536");
     static_assert(comptime::to_string<0>.str() == "0");
     static_assert(comptime::to_string<-65536>.str() == "-65536");

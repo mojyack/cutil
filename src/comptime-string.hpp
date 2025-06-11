@@ -150,4 +150,31 @@ constexpr auto replace_fn() -> auto {
 }
 template <String str, String from, String to, size_t index = 0>
 constexpr auto replace = replace_fn<str, from, to, index>();
+
+template <String str, char open, char close, size_t anchor, size_t cursor, size_t depth>
+constexpr auto remove_region_fn() -> auto {
+    if constexpr(cursor >= str.size()) {
+        return str;
+    } else {
+        if constexpr(str[cursor] == open) {
+            return remove_region_fn<str, open, close, depth == 0 ? cursor : anchor, cursor + 1, depth + 1>();
+        } else if constexpr(str[cursor] == close) {
+            if constexpr(anchor == size_t(-1)) {
+                return remove_region_fn<str, open, close, anchor, cursor + 1, depth>();
+            } else if constexpr(depth != 1) {
+                return remove_region_fn<str, open, close, anchor, cursor + 1, depth - 1>();
+            } else {
+                constexpr auto a  = substr<str, 0, anchor>;
+                constexpr auto b  = substr<str, anchor, cursor - anchor + 1>;
+                constexpr auto c  = substr<str, cursor + 1>;
+                constexpr auto ac = concat<a, c>;
+                return remove_region_fn<ac, open, close, size_t(-1), cursor - b.size() + 1, 0>();
+            }
+        } else {
+            return remove_region_fn<str, open, close, anchor, cursor + 1, depth>();
+        }
+    }
+}
+template <String str, char open, char close>
+constexpr auto remove_region = remove_region_fn<str, open, close, size_t(-1), 0, 0>();
 } // namespace comptime
