@@ -151,6 +151,29 @@ constexpr auto replace_fn() -> auto {
 template <String str, String from, String to, size_t index = 0>
 constexpr auto replace = replace_fn<str, from, to, index>();
 
+template <String str, char open, char close>
+constexpr auto find_region_fn() -> std::pair<size_t, size_t> {
+    auto cursor = 0uz;
+    auto depth  = 0uz;
+    auto anchor = std::string_view::npos;
+    while(cursor < str.size()) {
+        if(str[cursor] == open) {
+            depth += 1;
+            anchor = cursor;
+        } else if(str[cursor] == close) {
+            if(depth == 1) {
+                return {anchor, cursor - anchor - 1};
+            } else if(depth > 0) {
+                depth -= 1;
+            }
+        }
+        cursor += 1;
+    }
+    return {std::string_view::npos, 0};
+}
+template <String str, char open, char close>
+constexpr auto find_region = find_region_fn<str, open, close>();
+
 template <String str, char open, char close, size_t anchor, size_t cursor, size_t depth>
 constexpr auto remove_region_fn() -> auto {
     if constexpr(cursor >= str.size()) {
