@@ -30,8 +30,8 @@ auto main() -> int {
     static_assert(comptime::replace<str2, " ", "___">.str() == "hello___world");
 
     {
-        constexpr auto res = comptime::find_region<"hello)(world)", '(', ')'>;
-        static_assert(res.first == 6 && res.second == 5);
+        constexpr auto res = comptime::find_region<"hello)(world!)", '(', ')'>;
+        static_assert(res.first == 6 && res.second == 8);
     }
     {
         constexpr auto res = comptime::find_region<"hello)(world)", '{', '}'>;

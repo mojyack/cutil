@@ -159,10 +159,12 @@ constexpr auto find_region_fn() -> std::pair<size_t, size_t> {
     while(cursor < str.size()) {
         if(str[cursor] == open) {
             depth += 1;
-            anchor = cursor;
+            if(depth == 1) {
+                anchor = cursor;
+            }
         } else if(str[cursor] == close) {
             if(depth == 1) {
-                return {anchor, cursor - anchor - 1};
+                return {anchor, cursor - anchor + 1};
             } else if(depth > 0) {
                 depth -= 1;
             }
