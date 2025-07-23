@@ -3,27 +3,27 @@
 
 #include "critical.hpp"
 
-class TimerEvent {
-  private:
-    std::condition_variable condv;
-    Critical<bool>          waked;
+struct TimerEvent {
+    std::condition_variable cv;
+    Critical<bool>          flag;
 
-  public:
+    auto clear() -> void {
+        flag.access().second = false;
+    }
+
     auto wait() -> void {
-        waked.access().second = false;
-        auto lock             = std::unique_lock<std::mutex>(waked.get_raw_mutex());
-        condv.wait(lock, [this]() { return waked.assume_locked(); });
+        auto lock = std::unique_lock<std::mutex>(flag.get_raw_mutex());
+        cv.wait(lock, [this]() { return flag.assume_locked(); });
     }
 
     // returns: true => notified, false => timeup
     auto wait_for(auto duration) -> bool {
-        waked.access().second = false;
-        auto lock             = std::unique_lock<std::mutex>(waked.get_raw_mutex());
-        return condv.wait_for(lock, duration, [this]() { return waked.assume_locked(); });
+        auto lock = std::unique_lock<std::mutex>(flag.get_raw_mutex());
+        return cv.wait_for(lock, duration, [this]() { return flag.assume_locked(); });
     }
 
-    auto wakeup() -> void {
-        waked.access().second = true;
-        condv.notify_all();
+    auto notify() -> void {
+        flag.access().second = true;
+        cv.notify_all();
     }
 };
