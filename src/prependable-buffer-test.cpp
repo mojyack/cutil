@@ -102,13 +102,14 @@ auto prepend_first_test() -> bool {
     return true;
 }
 
+struct Object {
+    int  a;
+    char b;
+};
+
 auto append_object_test() -> bool {
     auto buf = PrependableBuffer();
 
-    struct Object {
-        int  a;
-        char b;
-    };
     auto object = Object();
     buf.append_object(object);
     ensure(std::memcmp(buf.body().data(), &object, sizeof(Object)) == 0);
@@ -126,8 +127,22 @@ auto append_array_test() -> bool {
     return true;
 }
 
+auto prepend_object_test() -> bool {
+    auto buf = PrependableBuffer();
+
+    auto object = Object();
+    buf.prepend_object(object);
+    ensure(std::memcmp(buf.body().data(), &object, sizeof(Object)) == 0);
+
+    return true;
+}
+
 auto main() -> int {
-    if(append_prepend_test() && prepend_first_test() && append_object_test() && append_array_test()) {
+    if(append_prepend_test() &&
+       prepend_first_test() &&
+       append_object_test() &&
+       append_array_test() &&
+       prepend_object_test()) {
         std::println("pass");
         return 0;
     } else {

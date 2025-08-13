@@ -20,6 +20,8 @@ struct PrependableBuffer {
     auto append_object(const T& obj) -> void;
     template <class T>
     auto append_array(const T& array) -> void;
+    template <class T>
+    auto prepend_object(const T& obj) -> void;
 };
 
 inline auto PrependableBuffer::size() const -> size_t {
@@ -75,4 +77,10 @@ auto PrependableBuffer::append_array(const T& array) -> void {
     static_assert(sizeof(array[0]) == 1);
     auto span = enlarge(array.size());
     std::memcpy(span.data(), array.data(), span.size());
+}
+
+template <class T>
+auto PrependableBuffer::prepend_object(const T& obj) -> void {
+    auto span = enlarge_forward(sizeof(T));
+    std::memcpy(span.data(), &obj, span.size());
 }
