@@ -16,6 +16,10 @@ struct PrependableBuffer {
     auto body() const -> std::span<const std::byte>;
     auto enlarge(size_t size) -> std::span<std::byte>;
     auto enlarge_forward(size_t size) -> std::span<std::byte>;
+    template <class T>
+    auto append_object(const T& obj) -> void;
+    template <class T>
+    auto append_array(const T& array) -> void;
 };
 
 inline auto PrependableBuffer::size() const -> size_t {
@@ -58,4 +62,17 @@ inline auto PrependableBuffer::enlarge_forward(const size_t size) -> std::span<s
     }
     body_head -= size;
     return std::span(storage).subspan(body_head, size);
+}
+
+template <class T>
+auto PrependableBuffer::append_object(const T& obj) -> void {
+    auto span = enlarge(sizeof(T));
+    std::memcpy(span.data(), &obj, span.size());
+}
+
+template <class T>
+auto PrependableBuffer::append_array(const T& array) -> void {
+    static_assert(sizeof(array[0]) == 1);
+    auto span = enlarge(array.size());
+    std::memcpy(span.data(), array.data(), span.size());
 }

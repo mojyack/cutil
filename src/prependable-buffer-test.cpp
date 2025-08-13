@@ -72,7 +72,7 @@ auto append_prepend_test() -> bool {
 }
 
 auto prepend_first_test() -> bool {
-    auto buf = PrependableBuffer();
+    auto buf      = PrependableBuffer();
     auto span     = std::span<std::byte>();
     auto expected = std::vector<std::byte>();
 
@@ -102,8 +102,32 @@ auto prepend_first_test() -> bool {
     return true;
 }
 
+auto append_object_test() -> bool {
+    auto buf = PrependableBuffer();
+
+    struct Object {
+        int  a;
+        char b;
+    };
+    auto object = Object();
+    buf.append_object(object);
+    ensure(std::memcmp(buf.body().data(), &object, sizeof(Object)) == 0);
+
+    return true;
+}
+
+auto append_array_test() -> bool {
+    auto buf = PrependableBuffer();
+
+    auto array = std::array<std::byte, 8>();
+    buf.append_array(array);
+    ensure(std::memcmp(buf.body().data(), array.data(), array.size()) == 0);
+
+    return true;
+}
+
 auto main() -> int {
-    if(append_prepend_test() && prepend_first_test()) {
+    if(append_prepend_test() && prepend_first_test() && append_object_test() && append_array_test()) {
         std::println("pass");
         return 0;
     } else {
