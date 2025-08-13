@@ -11,14 +11,19 @@ struct PrependableBuffer {
     size_t                 body_head = 0;
 
     auto size() const -> size_t;
+    auto resize(size_t size) -> void;
     auto body() -> std::span<std::byte>;
     auto body() const -> std::span<const std::byte>;
-    auto enlarge(const size_t size) -> std::span<std::byte>;
-    auto enlarge_forward(const size_t size) -> std::span<std::byte>;
+    auto enlarge(size_t size) -> std::span<std::byte>;
+    auto enlarge_forward(size_t size) -> std::span<std::byte>;
 };
 
 inline auto PrependableBuffer::size() const -> size_t {
     return storage.size() - body_head;
+}
+
+inline auto PrependableBuffer::resize(const size_t size) -> void {
+    storage.resize(body_head + size);
 }
 
 inline auto PrependableBuffer::body() -> std::span<std::byte> {
@@ -31,7 +36,7 @@ inline auto PrependableBuffer::body() const -> std::span<const std::byte> {
 
 inline auto PrependableBuffer::enlarge(const size_t size) -> std::span<std::byte> {
     const auto prev_size = this->size();
-    if(storage.empty()) {
+    if(body_head == 0) {
         body_head = preallocation_size;
         storage.resize(body_head + size);
     } else {

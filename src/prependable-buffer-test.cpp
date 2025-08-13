@@ -62,6 +62,12 @@ auto append_prepend_test() -> bool {
     expected = concat(std::vector<std::byte>(32, std::byte(4)), expected);
     ensure(std::memcmp(buf.body().data(), expected.data(), buf.size()) == 0);
 
+    // shrink
+    buf.resize(8);
+    ensure(buf.size() == 8);
+    expected.resize(8);
+    ensure(std::memcmp(buf.body().data(), expected.data(), buf.size()) == 0);
+
     return true;
 }
 
