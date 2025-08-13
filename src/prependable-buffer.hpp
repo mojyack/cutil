@@ -1,0 +1,56 @@
+#pragma once
+#include <span>
+#include <vector>
+
+// PrependableBuffer: bytes array, data can be prepended without reallocation
+
+struct PrependableBuffer {
+    constexpr static auto preallocation_size = 32;
+
+    std::vector<std::byte> storage;
+    size_t                 body_head = 0;
+
+    auto size() const -> size_t;
+    auto body() -> std::span<std::byte>;
+    auto body() const -> std::span<const std::byte>;
+    auto enlarge(const size_t size) -> std::span<std::byte>;
+    auto enlarge_forward(const size_t size) -> std::span<std::byte>;
+};
+
+inline auto PrependableBuffer::size() const -> size_t {
+    return storage.size() - body_head;
+}
+
+inline auto PrependableBuffer::body() -> std::span<std::byte> {
+    return std::span(storage).subspan(body_head);
+}
+
+inline auto PrependableBuffer::body() const -> std::span<const std::byte> {
+    return ((PrependableBuffer*)this)->body();
+}
+
+inline auto PrependableBuffer::enlarge(const size_t size) -> std::span<std::byte> {
+    const auto prev_size = this->size();
+    if(storage.empty()) {
+        body_head = preallocation_size;
+        storage.resize(body_head + size);
+    } else {
+        storage.resize(storage.size() + size);
+    }
+    return std::span(storage).subspan(body_head + prev_size);
+}
+
+inline auto PrependableBuffer::enlarge_forward(const size_t size) -> std::span<std::byte> {
+    if(size > body_head) {
+        // run out of preallocated buffer, need resize
+        const auto curr_size    = this->size();
+        const auto new_head     = preallocation_size + size;
+        const auto head_diff    = new_head - body_head;
+        const auto new_capacity = storage.size() + head_diff;
+        storage.resize(new_capacity);
+        std::memcpy(storage.data() + new_head, storage.data() + body_head, curr_size);
+        body_head = new_head;
+    }
+    body_head -= size;
+    return std::span(storage).subspan(body_head, size);
+}
