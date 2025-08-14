@@ -17,11 +17,11 @@ struct PrependableBuffer {
     auto enlarge(size_t size) -> std::span<std::byte>;
     auto enlarge_forward(size_t size) -> std::span<std::byte>;
     template <class T>
-    auto append_object(const T& obj) -> void;
+    auto append_object(const T& obj) -> PrependableBuffer&&;
     template <class T>
-    auto append_array(const T& array) -> void;
+    auto append_array(const T& array) -> PrependableBuffer&&;
     template <class T>
-    auto prepend_object(const T& obj) -> void;
+    auto prepend_object(const T& obj) -> PrependableBuffer&&;
 };
 
 inline auto PrependableBuffer::size() const -> size_t {
@@ -67,20 +67,23 @@ inline auto PrependableBuffer::enlarge_forward(const size_t size) -> std::span<s
 }
 
 template <class T>
-auto PrependableBuffer::append_object(const T& obj) -> void {
+auto PrependableBuffer::append_object(const T& obj) -> PrependableBuffer&& {
     auto span = enlarge(sizeof(T));
     std::memcpy(span.data(), &obj, span.size());
+    return std::move(*this);
 }
 
 template <class T>
-auto PrependableBuffer::append_array(const T& array) -> void {
+auto PrependableBuffer::append_array(const T& array) -> PrependableBuffer&& {
     static_assert(sizeof(array[0]) == 1);
     auto span = enlarge(array.size());
     std::memcpy(span.data(), array.data(), span.size());
+    return std::move(*this);
 }
 
 template <class T>
-auto PrependableBuffer::prepend_object(const T& obj) -> void {
+auto PrependableBuffer::prepend_object(const T& obj) -> PrependableBuffer&& {
     auto span = enlarge_forward(sizeof(T));
     std::memcpy(span.data(), &obj, span.size());
+    return std::move(*this);
 }
