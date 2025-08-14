@@ -10,16 +10,31 @@ struct PrependableBuffer {
     std::vector<std::byte> storage;
     size_t                 body_head = 0;
 
+    // <- forward     backward ->
+    // 0 ..    .. head ..    .. N
+    // | prealloc |     body    |
+
+    // get body size (i.e. body().size())
     auto size() const -> size_t;
+    // resize body
     auto resize(size_t size) -> void;
+    // get span to body
     auto body() -> std::span<std::byte>;
     auto body() const -> std::span<const std::byte>;
+    // move body end backward
     auto enlarge(size_t size) -> std::span<std::byte>;
+    // move body start forward
     auto enlarge_forward(size_t size) -> std::span<std::byte>;
+    // move body end forward
+    auto shrink(size_t size) -> void;
+    // move body start backward
+    auto shrink_backward(size_t size) -> void;
+    // enlarge then memcpy
     template <class T>
     auto append_object(const T& obj) -> PrependableBuffer&&;
     template <class T>
     auto append_array(const T& array) -> PrependableBuffer&&;
+    // enlarge_forward then memcpy
     template <class T>
     auto prepend_object(const T& obj) -> PrependableBuffer&&;
 };
@@ -64,6 +79,14 @@ inline auto PrependableBuffer::enlarge_forward(const size_t size) -> std::span<s
     }
     body_head -= size;
     return std::span(storage).subspan(body_head, size);
+}
+
+inline auto PrependableBuffer::shrink(const size_t size) -> void {
+    storage.resize(storage.size() - std::min(size, this->size()));
+}
+
+inline auto PrependableBuffer::shrink_backward(const size_t size) -> void {
+    body_head = std::min(body_head + size, storage.size());
 }
 
 template <class T>

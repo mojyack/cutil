@@ -102,6 +102,54 @@ auto prepend_first_test() -> bool {
     return true;
 }
 
+auto shrink_test() -> bool {
+    auto buf      = PrependableBuffer();
+    auto expected = std::vector<std::byte>();
+
+    // shrink forward
+    std::ranges::fill(buf.enlarge(8), std::byte(1));
+    std::ranges::fill(buf.enlarge(8), std::byte(2));
+    std::ranges::fill(buf.enlarge(8), std::byte(3));
+    std::ranges::fill(buf.enlarge(8), std::byte(4));
+
+    // normal shrink
+    ensure(buf.size() == 32);
+    buf.shrink(8);
+    ensure(buf.size() == 24);
+
+    expected = concat(expected, std::vector<std::byte>(8, std::byte(1)));
+    expected = concat(expected, std::vector<std::byte>(8, std::byte(2)));
+    expected = concat(expected, std::vector<std::byte>(8, std::byte(3)));
+    ensure(std::memcmp(buf.body().data(), expected.data(), buf.size()) == 0);
+
+    // over shrink
+    buf.shrink(32);
+    ensure(buf.size() == 0);
+
+    // shrink backward
+    std::ranges::fill(buf.enlarge(8), std::byte(1));
+    std::ranges::fill(buf.enlarge(8), std::byte(2));
+    std::ranges::fill(buf.enlarge(8), std::byte(3));
+    std::ranges::fill(buf.enlarge(8), std::byte(4));
+
+    // normal shrink
+    ensure(buf.size() == 32);
+    buf.shrink_backward(8);
+    ensure(buf.size() == 24);
+
+    expected.clear();
+    expected = concat(expected, std::vector<std::byte>(8, std::byte(2)));
+    expected = concat(expected, std::vector<std::byte>(8, std::byte(3)));
+    expected = concat(expected, std::vector<std::byte>(8, std::byte(4)));
+    ensure(std::memcmp(buf.body().data(), expected.data(), buf.size()) == 0);
+
+    // over shrink
+    buf.shrink_backward(32);
+    ensure(buf.size() == 0);
+
+    return true;
+}
+
 struct Object {
     int  a;
     char b;
@@ -140,6 +188,7 @@ auto prepend_object_test() -> bool {
 auto main() -> int {
     if(append_prepend_test() &&
        prepend_first_test() &&
+       shrink_test() &&
        append_object_test() &&
        append_array_test() &&
        prepend_object_test()) {
