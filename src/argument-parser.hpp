@@ -224,7 +224,7 @@ class GenericParser {
         return ret;
     }
 
-    auto parse(const int argc, const char* const* const argv, int* unhandled = nullptr) -> bool {
+    auto parse(const int argc, const char* const* const argv, int* index_ptr = nullptr) -> bool {
         auto parse_data = [](Argument& entry, CStr str) -> bool {
             const auto ret = entry.pair.apply([str](auto& pair) {
                 using T = decltype(pair.init);
@@ -237,8 +237,11 @@ class GenericParser {
             return ret && *ret;
         };
 
-        auto skip_error_check = false;
-        auto index            = 1;
+        auto  index_           = int();
+        auto& index            = index_ptr != nullptr ? *index_ptr : index_;
+        auto  skip_error_check = false;
+
+        index = 1;
     loop:
         if(index >= argc) {
             goto check;
@@ -270,8 +273,7 @@ class GenericParser {
             goto next;
         }
 
-        if(unhandled != nullptr) {
-            *unhandled = index;
+        if(index_ptr != nullptr) {
             goto check;
         } else {
             bail("unhandled argument {}", argv[index]);

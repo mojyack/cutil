@@ -171,17 +171,31 @@ auto unhandled_test() -> bool {
     auto kwarg = int();
     auto arg   = int();
 
-    auto parser = args::Parser<>();
-    parser.kwarg(&kwarg, {"-k"}, "INT", "number", {.state = args::State::Uninitialized});
-    parser.arg(&arg, "INT", "number", {.state = args::State::Uninitialized});
+    {
+        auto parser = args::Parser<>();
+        parser.kwarg(&kwarg, {"-k"}, "INT", "number", {.state = args::State::Uninitialized});
+        parser.arg(&arg, "INT", "number", {.state = args::State::Uninitialized});
 
-    const auto argv = std::vector{"test", "-k", "1", "2", "a", "b", "c"};
+        const auto argv = std::vector{"test", "-k", "1", "2"};
 
-    auto index = int();
-    assert(parser.parse(argv.size(), argv.data(), &index));
-    assert(argv[index + 0][0] == 'a');
-    assert(argv[index + 1][0] == 'b');
-    assert(argv[index + 2][0] == 'c');
+        auto index = int();
+        assert(parser.parse(argv.size(), argv.data(), &index));
+        assert(index == int(argv.size()));
+    }
+    {
+        auto parser = args::Parser<>();
+        parser.kwarg(&kwarg, {"-k"}, "INT", "number", {.state = args::State::Uninitialized});
+        parser.arg(&arg, "INT", "number", {.state = args::State::Uninitialized});
+
+        const auto argv = std::vector{"test", "-k", "1", "2", "a", "b", "c"};
+
+        auto index = int();
+        assert(parser.parse(argv.size(), argv.data(), &index));
+        std::println("index={} {}", index, (void*)&index);
+        assert(argv[index + 0][0] == 'a');
+        assert(argv[index + 1][0] == 'b');
+        assert(argv[index + 2][0] == 'c');
+    }
     return true;
 }
 } // namespace test
@@ -197,7 +211,10 @@ auto main() -> int {
             test::no_error_check_test,
             test::unhandled_test,
         }) {
-        ret &= test();
+        if(!test()) {
+            std::println("test failed");
+            ret = false;
+        }
     }
     std::println("result: {}", ret ? "ok" : "error");
     return ret ? 0 : 1;
