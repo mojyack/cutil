@@ -42,7 +42,13 @@ auto parse(auto& parser, const char* const str) -> bool {
     return parser.parse(argv.size(), argv.data());
 }
 
-auto all_type_test() -> void {
+#define assert(cond)                                              \
+    if(!(cond)) {                                                 \
+        std::println(stderr, "assertion failed at {}", __LINE__); \
+        return false;                                             \
+    }
+
+auto all_type_test() -> bool {
     auto pint    = int();
     auto kint    = int();
     auto pdouble = double();
@@ -67,28 +73,19 @@ auto all_type_test() -> void {
     parser.kwarg(&kpos, {"-p", "--pos"}, "FLOAT", "keyword custom value");
     std::println("usage: test {}", parser.get_help());
     std::println("parse: {}", parse(parser, "test -n 2 -f 2.0 -s hello -b true -p 100,200 1 1.0 world false 300,400") ? "ok" : "error");
-    if(pint != 1 || kint != 2 ||
-       pdouble != 1.0 || kdouble != 2.0 ||
-       std::string_view(kstr) != "hello" || std::string_view(pstr) != "world" ||
-       pflag != false || kflag != true ||
-       ppos.x != 300 || ppos.y != 400 || kpos.x != 100 || kpos.y != 200) {
-        std::println("args: error");
-    } else {
-        std::println("args: ok");
-    }
-    std::println("pint: {}", pint);
-    std::println("kint: {}", kint);
-    std::println("pdouble: {}", pdouble);
-    std::println("kdouble: {}", kdouble);
-    std::println("pstr: {}", pstr);
-    std::println("kstr: {}", kstr);
-    std::println("pflag: {}", pflag);
-    std::println("kflag: {}", kflag);
-    std::println("ppos: {}", ppos.x, ",", ppos.y);
-    std::println("kpos: {}", kpos.x, ",", kpos.y);
+    assert(pint == 1);
+    assert(kint == 2);
+    assert(pdouble == 1.0);
+    assert(kdouble == 2.0);
+    assert(std::string_view(kstr) == "hello");
+    assert(std::string_view(pstr) == "world");
+    assert(pflag == false);
+    assert(kflag == true);
+    assert(ppos.x == 300 || ppos.y == 400 || kpos.x == 100 || kpos.y == 200);
+    return true;
 }
 
-auto flag_test() -> void {
+auto flag_test() -> bool {
     auto flag   = bool();
     auto invert = bool();
 
@@ -96,40 +93,42 @@ auto flag_test() -> void {
     parser.kwflag(&flag, {"-1"}, "normal");
     parser.kwflag(&invert, {"-2"}, "invert", {.invert_flag_value = true});
     std::println("usage: test {}", parser.get_help());
-    std::println("parse: {}", parse(parser, "test -1 -2") ? "ok" : "error");
-    std::println("args: {}", flag && !invert ? "ok" : "error");
+    assert(parse(parser, "test -1 -2"));
+    assert(flag && !invert);
+    return true;
 }
 
-auto state_test() -> void {
+auto state_test() -> bool {
     auto num = 8086;
     // default value
     {
         auto parser = args::Parser<>();
         parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::DefaultValue});
         std::println("usage: test {}", parser.get_help());
-        std::println("parse: {}", parse(parser, "test") ? "ok" : "error");
-        std::println("args: {}", num == 8086 ? "ok" : "error");
+        assert(parse(parser, "test"));
+        assert(num == 8086);
     }
     // initialized
     {
         auto parser = args::Parser<>();
         parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::Initialized});
         std::println("usage: test {}", parser.get_help());
-        std::println("parse: {}", parse(parser, "test") ? "ok" : "error");
-        std::println("args: {}", num == 8086 ? "ok" : "error");
+        assert(parse(parser, "test"));
+        assert(num == 8086);
     }
     // required
     {
         auto parser = args::Parser<>();
         parser.kwarg(&num, {"-n"}, "INT", "number", {.state = args::State::Uninitialized});
         std::println("usage: test {}", parser.get_help());
-        std::println("parse: {}", !parse(parser, "test") ? "ok" : "error");
-        std::println("parse: {}", parse(parser, "test -n 1") ? "ok" : "error");
-        std::println("args: {}", num == 1 ? "ok" : "error");
+        assert(!parse(parser, "test"));
+        assert(parse(parser, "test -n 1"));
+        assert(num == 1);
     }
+    return true;
 }
 
-auto minus_int_test() -> void {
+auto minus_int_test() -> bool {
     auto i8  = int8_t();
     auto u8  = uint8_t();
     auto i64 = ssize_t();
@@ -141,31 +140,34 @@ auto minus_int_test() -> void {
     parser.arg(&i64, "INT", "i64");
     parser.arg(&u64, "INT", "u64");
     std::println("usage: test {}", parser.get_help());
-    std::println("parse: {}", parse(parser, "test -1 2 -3 4") ? "ok" : "error");
-    std::println("args: {}", i8 == -1 && u8 == 2 && i64 == -3 && u64 == 4 ? "ok" : "error");
+    assert(parse(parser, "test -1 2 -3 4"));
+    assert(i8 == -1 && u8 == 2 && i64 == -3 && u64 == 4);
+    return true;
 }
 
-auto out_of_range_test() -> void {
+auto out_of_range_test() -> bool {
     auto i8 = int8_t();
     auto u8 = uint8_t();
 
     auto parser = args::Parser<int8_t, uint8_t, ssize_t, size_t>();
     parser.arg(&i8, "INT", "i8");
     parser.arg(&u8, "INT", "u8");
-    std::println("parse: {}", !parse(parser, "test 1 -2") ? "ok" : "error");
+    assert(!parse(parser, "test 1 -2"));
+    return true;
 }
 
-auto no_error_check_test() -> void {
+auto no_error_check_test() -> bool {
     auto required = bool();
     auto help     = false;
 
     auto parser = args::Parser<>();
     parser.arg(&required, "BOOL", "required");
     parser.kwflag(&help, {"-h", "--help"}, "help", {.no_error_check = true});
-    std::println("parse: {}", parse(parser, "test -h") ? "ok" : "error");
+    assert(parse(parser, "test -h"));
+    return true;
 }
 
-auto unhandled_test() -> void {
+auto unhandled_test() -> bool {
     auto kwarg = int();
     auto arg   = int();
 
@@ -176,18 +178,27 @@ auto unhandled_test() -> void {
     const auto argv = std::vector{"test", "-k", "1", "2", "a", "b", "c"};
 
     auto index = int();
-    std::println("parse: {}", parser.parse(argv.size(), argv.data(), &index) ? "ok" : "error");
-    std::println("index[0]: {}", argv[index + 0][0] == 'a' ? "ok" : "error");
+    assert(parser.parse(argv.size(), argv.data(), &index));
+    assert(argv[index + 0][0] == 'a');
+    assert(argv[index + 1][0] == 'b');
+    assert(argv[index + 2][0] == 'c');
+    return true;
 }
 } // namespace test
 
 auto main() -> int {
-    test::all_type_test();
-    test::flag_test();
-    test::state_test();
-    test::minus_int_test();
-    test::out_of_range_test();
-    test::no_error_check_test();
-    test::unhandled_test();
-    return 0;
+    auto ret = true;
+    for(auto test : {
+            test::all_type_test,
+            test::flag_test,
+            test::state_test,
+            test::minus_int_test,
+            test::out_of_range_test,
+            test::no_error_check_test,
+            test::unhandled_test,
+        }) {
+        ret &= test();
+    }
+    std::println("result: {}", ret ? "ok" : "error");
+    return ret ? 0 : 1;
 }
