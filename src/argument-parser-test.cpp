@@ -164,6 +164,21 @@ auto no_error_check_test() -> void {
     parser.kwflag(&help, {"-h", "--help"}, "help", {.no_error_check = true});
     std::println("parse: {}", parse(parser, "test -h") ? "ok" : "error");
 }
+
+auto unhandled_test() -> void {
+    auto kwarg = int();
+    auto arg   = int();
+
+    auto parser = args::Parser<>();
+    parser.kwarg(&kwarg, {"-k"}, "INT", "number", {.state = args::State::Uninitialized});
+    parser.arg(&arg, "INT", "number", {.state = args::State::Uninitialized});
+
+    const auto argv = std::vector{"test", "-k", "1", "2", "a", "b", "c"};
+
+    auto index = int();
+    std::println("parse: {}", parser.parse(argv.size(), argv.data(), &index) ? "ok" : "error");
+    std::println("index[0]: {}", argv[index + 0][0] == 'a' ? "ok" : "error");
+}
 } // namespace test
 
 auto main() -> int {
@@ -173,5 +188,6 @@ auto main() -> int {
     test::minus_int_test();
     test::out_of_range_test();
     test::no_error_check_test();
+    test::unhandled_test();
     return 0;
 }

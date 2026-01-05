@@ -224,7 +224,7 @@ class GenericParser {
         return ret;
     }
 
-    auto parse(const int argc, const char* const* const argv) -> bool {
+    auto parse(const int argc, const char* const* const argv, int* unhandled = nullptr) -> bool {
         auto parse_data = [](Argument& entry, CStr str) -> bool {
             const auto ret = entry.pair.apply([str](auto& pair) {
                 using T = decltype(pair.init);
@@ -269,7 +269,13 @@ class GenericParser {
             entry.found = true;
             goto next;
         }
-        bail("unhandled argument {}", argv[index]);
+
+        if(unhandled != nullptr) {
+            *unhandled = index;
+            goto check;
+        } else {
+            bail("unhandled argument {}", argv[index]);
+        }
 
     next:
         index += 1;
