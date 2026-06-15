@@ -5,6 +5,7 @@ template <class K, class V>
 struct LightMap {
     using E = std::pair<K, V>;
     using I = std::vector<E>::iterator;
+    using C = std::vector<E>::const_iterator;
     std::vector<E> data;
 
     auto find(const auto& key) -> I {
@@ -17,7 +18,11 @@ struct LightMap {
         return i;
     }
 
-    auto contains(const auto& key) -> bool {
+    auto find(const auto& key) const -> C {
+        return const_cast<LightMap*>(this)->find(key);
+    }
+
+    auto contains(const auto& key) const -> bool {
         return find(key) != end();
     }
 
@@ -40,6 +45,14 @@ struct LightMap {
     }
 
     auto end() -> I {
+        return data.end();
+    }
+
+    auto begin() const -> C {
+        return data.begin();
+    }
+
+    auto end() const -> C {
         return data.end();
     }
 
