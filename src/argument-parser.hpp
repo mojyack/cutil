@@ -31,8 +31,8 @@ inline auto from_string(CStr str) -> std::optional<T> {
     return from_chars<T>(str);
 }
 
-template <>
-inline auto from_string<double>(CStr str) -> std::optional<double> {
+template <std::floating_point T>
+inline auto from_string(CStr str) -> std::optional<T> {
     errno        = 0;
     const auto v = std::strtod(std::string(str).data(), NULL);
     return errno == 0 ? std::optional(v) : std::nullopt;
@@ -58,8 +58,8 @@ auto to_string(const T& data) -> std::string {
     return std::to_string(data);
 }
 
-template <>
-inline auto to_string<double>(const double& data) -> std::string {
+template <std::floating_point T>
+inline auto to_string(const T& data) -> std::string {
     return std::to_string(data);
 }
 
